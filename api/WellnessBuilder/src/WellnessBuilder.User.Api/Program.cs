@@ -1,3 +1,8 @@
+using Microsoft.EntityFrameworkCore;
+using WellnessBuilder.Shared.Persistence;
+using WellnessBuilder.User.Api.Middleware;
+using WellnessBuilder.User.Api.Services;
+
 namespace WellnessBuilder.User.Api;
 
 public class Program
@@ -6,27 +11,35 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        // Add services to the container.
+        builder.Services.AddSharedPersistence(
+            builder.Configuration.GetConnectionString("LocalhostConnection")
+            ?? throw new Exception("Missing connection string"));
+
+        builder.Services.AddScoped<IRuleEngine, RuleEngine>();
+        builder.Services.AddScoped<IOfferResolver, OfferResolver>();
+        builder.Services.AddScoped<ISessionService, SessionService>();
 
         builder.Services.AddControllers();
-        // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-        builder.Services.AddOpenApi();
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen();
 
         var app = builder.Build();
 
-        // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
         {
-            app.MapOpenApi();
+            app.UseSwagger();
+            app.UseSwaggerUI();
         }
 
-        app.UseHttpsRedirection();
+        using (var scope = app.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            db.Database.Migrate();
+        }
 
-        app.UseAuthorization();
-
+        app.UseMiddleware<GlobalExceptionHandler>();
 
         app.MapControllers();
-
         app.Run();
     }
 }
