@@ -21,6 +21,13 @@ export function QuestionNode({ id, data, selected }: NodeProps<QuestionNodeType>
         <span className="ml-auto rounded-full bg-blue-200 px-2 py-0.5 text-[10px] font-medium text-blue-700">{data.answerType}</span>
       </div>
       <div className="px-3 py-2">
+        {data.imageUrl && (
+          <img
+            src={data.imageUrl}
+            alt=""
+            className="mb-3 h-24 w-full rounded-lg object-cover"
+          />
+        )}
         <p className="text-sm font-medium text-gray-800">{data.title || 'Untitled'}</p>
         {data.text && <p className="mt-1 line-clamp-2 text-xs text-gray-500">{data.text}</p>}
       </div>

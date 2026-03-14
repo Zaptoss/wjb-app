@@ -88,9 +88,17 @@ export function FlowCanvas({ reactFlowWrapper }: Props) {
     const id = crypto.randomUUID();
     let data: FlowNode['data'];
     if (type === 'info') {
-      data = { type: 'info', title: 'New Info Page', body: '' };
+      data = { type: 'info', title: 'New Info Page', body: '', imageUrl: '' };
     } else if (type === 'question') {
-      data = { type: 'question', title: 'New Question', text: '', answerType: 'single', dataAttribute: '', options: [] };
+      data = {
+        type: 'question',
+        title: 'New Question',
+        text: '',
+        answerType: 'single',
+        dataAttribute: '',
+        options: [],
+        imageUrl: '',
+      };
     } else if (type === 'offer') {
       data = { type: 'offer', offerId: '' };
     } else {

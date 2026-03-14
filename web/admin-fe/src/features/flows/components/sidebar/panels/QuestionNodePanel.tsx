@@ -1,5 +1,6 @@
 import { useFlowStore } from '../../../store/flowStore';
 import type { QuestionNodeData, AnswerType } from '../../../types';
+import { NodeImageField } from './NodeImageField';
 
 export function QuestionNodePanel({ nodeId, data }: { nodeId: string; data: QuestionNodeData }) {
   const updateNodeData = useFlowStore((s) => s.updateNodeData);
@@ -47,6 +48,11 @@ export function QuestionNodePanel({ nodeId, data }: { nodeId: string; data: Ques
           className="w-full resize-y rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-gray-400"
         />
       </div>
+      <NodeImageField
+        label="Photo"
+        imageUrl={data.imageUrl}
+        onChange={(imageUrl) => updateNodeData(nodeId, { imageUrl })}
+      />
       <div>
         <label className="mb-1 block text-xs font-medium text-gray-500">Answer Type</label>
         <div className="flex gap-2">

@@ -1,5 +1,6 @@
 import { useFlowStore } from '../../../store/flowStore';
 import type { InfoNodeData } from '../../../types';
+import { NodeImageField } from './NodeImageField';
 
 export function InfoNodePanel({ nodeId, data }: { nodeId: string; data: InfoNodeData }) {
   const updateNodeData = useFlowStore((s) => s.updateNodeData);
@@ -26,6 +27,11 @@ export function InfoNodePanel({ nodeId, data }: { nodeId: string; data: InfoNode
           className="w-full resize-y rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-gray-400"
         />
       </div>
+      <NodeImageField
+        label="Photo"
+        imageUrl={data.imageUrl}
+        onChange={(imageUrl) => updateNodeData(nodeId, { imageUrl })}
+      />
     </div>
   );
 }

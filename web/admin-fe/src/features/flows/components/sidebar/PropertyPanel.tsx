@@ -7,6 +7,33 @@ import type { NodeData, EdgeData } from '../../types';
 
 const panelStyle = { borderLeft: '1px solid var(--border-subtle)', backgroundColor: 'var(--bg-surface)' };
 
+function DeleteAction({
+  label,
+  onClick,
+}: {
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <div className="p-4" style={{ borderTop: '1px solid var(--border-subtle)' }}>
+      <button
+        type="button"
+        onClick={onClick}
+        className="w-full rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-colors"
+        style={{ backgroundColor: '#DC2626' }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.backgroundColor = '#B91C1C';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.backgroundColor = '#DC2626';
+        }}
+      >
+        {label}
+      </button>
+    </div>
+  );
+}
+
 export function PropertyPanel() {
   const selectedNodeId = useFlowStore((s) => s.selectedNodeId);
   const selectedEdgeId = useFlowStore((s) => s.selectedEdgeId);
@@ -24,13 +51,6 @@ export function PropertyPanel() {
     question: 'Question',
     offer: 'Offer',
     end: 'End Flow',
-  };
-
-  const NODE_TYPE_COLORS: Record<string, string> = {
-    info: 'text-amber-700 bg-amber-100',
-    question: 'text-blue-700 bg-blue-100',
-    offer: 'text-green-700 bg-green-100',
-    end: 'text-red-700 bg-red-100',
   };
 
   if (!selectedNode && !selectedEdge) {
@@ -57,12 +77,8 @@ export function PropertyPanel() {
     const edgeData = (selectedEdge.data as EdgeData) ?? { conditions: [] };
     return (
       <div className="flex w-72 flex-shrink-0 flex-col" style={panelStyle}>
-        <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-          <div className="flex items-center gap-2">
-            <span className="rounded bg-indigo-100 px-2 py-0.5 text-xs font-semibold text-indigo-700">Edge</span>
-            <h2 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Conditions</h2>
-          </div>
-          <button onClick={() => deleteEdge(selectedEdgeId!)} className="text-xs text-red-500 hover:text-red-700">Delete</button>
+        <div className="px-4 py-3" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+          <h2 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Edge</h2>
         </div>
         <div className="flex-1 overflow-y-auto p-4">
           <div className="flex flex-col gap-3">
@@ -124,6 +140,7 @@ export function PropertyPanel() {
             </button>
           </div>
         </div>
+        <DeleteAction label="Delete edge" onClick={() => deleteEdge(selectedEdgeId!)} />
       </div>
     );
   }
@@ -133,13 +150,10 @@ export function PropertyPanel() {
 
   return (
     <div className="flex w-72 flex-shrink-0 flex-col" style={panelStyle}>
-      <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-        <div className="flex items-center gap-2">
-          <span className={`rounded px-2 py-0.5 text-xs font-semibold ${NODE_TYPE_COLORS[node.type ?? 'end']}`}>
-            {NODE_TYPE_LABELS[node.type ?? 'end']}
-          </span>
-        </div>
-        <button onClick={() => deleteNode(selectedNodeId!)} className="text-xs text-red-500 hover:text-red-700">Delete</button>
+      <div className="px-4 py-3" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+        <h2 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+          {NODE_TYPE_LABELS[node.type ?? 'end']}
+        </h2>
       </div>
       <div className="flex-1 overflow-y-auto p-4">
         {data.type === 'info' && <InfoNodePanel nodeId={node.id} data={data} />}
@@ -147,6 +161,7 @@ export function PropertyPanel() {
         {data.type === 'offer' && <OfferNodePanel nodeId={node.id} data={data} />}
         {data.type === 'end' && <EndNodePanel />}
       </div>
+      <DeleteAction label="Delete node" onClick={() => deleteNode(selectedNodeId!)} />
     </div>
   );
 }

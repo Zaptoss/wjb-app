@@ -19,6 +19,7 @@ export interface InfoNodeData extends Record<string, unknown> {
   type: 'info';
   title: string;
   body: string;
+  imageUrl?: string;
 }
 
 export interface QuestionNodeData extends Record<string, unknown> {
@@ -28,6 +29,7 @@ export interface QuestionNodeData extends Record<string, unknown> {
   answerType: AnswerType;
   dataAttribute: string;
   options: AnswerOption[];
+  imageUrl?: string;
 }
 
 export interface OfferNodeData extends Record<string, unknown> {

@@ -1,13 +1,14 @@
+import { useStoredOffers } from '../../../../offers/storage';
 import { Handle, Position, type NodeProps, type Node } from '@xyflow/react';
 import type { OfferNodeData } from '../../../types';
-import { OFFERS } from '../../../../offers/data';
 import { useFlowStore } from '../../../store/flowStore';
 
 type OfferNodeType = Node<OfferNodeData, 'offer'>;
 
 export function OfferNode({ id, data, selected }: NodeProps<OfferNodeType>) {
   const setSelectedNodeId = useFlowStore((s) => s.setSelectedNodeId);
-  const offer = OFFERS.find((o) => o.id === data.offerId);
+  const offers = useStoredOffers();
+  const offer = offers.find((item) => item.id === data.offerId);
 
   return (
     <div
@@ -24,10 +25,14 @@ export function OfferNode({ id, data, selected }: NodeProps<OfferNodeType>) {
         {offer ? (
           <>
             <p className="text-sm font-medium text-gray-800">{offer.name}</p>
-            <p className="mt-1 text-xs text-gray-500">{offer.tagline}</p>
+            <p className="mt-1 line-clamp-2 text-xs text-gray-500">
+              {offer.description || offer.why || 'Offer selected'}
+            </p>
           </>
         ) : (
-          <p className="text-sm italic text-gray-400">No offer selected</p>
+          <p className="text-sm italic text-gray-400">
+            {data.offerId ? 'Offer not found' : 'No offer selected'}
+          </p>
         )}
       </div>
       <Handle type="target" position={Position.Left} className="!border-green-400 !bg-green-100" />
