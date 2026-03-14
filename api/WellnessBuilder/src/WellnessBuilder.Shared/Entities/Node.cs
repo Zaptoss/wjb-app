@@ -7,7 +7,7 @@ public class Node
     public Guid Id { get; set; }
     public NodeType NodeType { get; set; }
     public required string Title { get; set; }
-    public required string Body { get; set; }
+    public string? Body { get; set; }
     public InputType? InputType { get; set; }
     public string? AttributeKey { get; set; }
     public int DisplayOrder { get; set; }

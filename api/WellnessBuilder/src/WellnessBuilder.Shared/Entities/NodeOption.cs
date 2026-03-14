@@ -8,5 +8,5 @@ public class NodeOption
     public required string Value { get; set; }
     public int DisplayOrder { get; set; }
 
-    public required Node Node { get; set; }
+    public Node? Node { get; set; }
 }
