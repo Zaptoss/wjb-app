@@ -5,9 +5,12 @@ export function useUndoRedo() {
   const undo = useFlowStore((s) => s.undo);
   const redo = useFlowStore((s) => s.redo);
   const nodes = useFlowStore((s) => s.nodes);
+  const edges = useFlowStore((s) => s.edges);
   const copyFlow = useFlowStore((s) => s.copyFlow);
   const copySelected = useFlowStore((s) => s.copySelected);
   const pasteFlow = useFlowStore((s) => s.pasteFlow);
+  const deleteNodes = useFlowStore((s) => s.deleteNodes);
+  const deleteEdges = useFlowStore((s) => s.deleteEdges);
 
   const isTypingTarget = (target: EventTarget | null) => {
     if (!(target instanceof HTMLElement)) return false;
@@ -17,6 +20,17 @@ export function useUndoRedo() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (!isTypingTarget(e.target) && (e.key === 'Backspace' || e.key === 'Delete')) {
+        const selectedNodeIds = nodes.filter((node) => node.selected).map((node) => node.id);
+        const selectedEdgeIds = edges.filter((edge) => edge.selected).map((edge) => edge.id);
+        if (selectedNodeIds.length > 0 || selectedEdgeIds.length > 0) {
+          e.preventDefault();
+          if (selectedNodeIds.length > 0) deleteNodes(selectedNodeIds);
+          if (selectedEdgeIds.length > 0) deleteEdges(selectedEdgeIds);
+        }
+        return;
+      }
+
       const ctrl = e.ctrlKey || e.metaKey;
       if (!ctrl) return;
       if (isTypingTarget(e.target)) return;
@@ -39,5 +53,5 @@ export function useUndoRedo() {
     };
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [undo, redo, nodes, copyFlow, copySelected, pasteFlow]);
+  }, [undo, redo, nodes, edges, copyFlow, copySelected, pasteFlow, deleteNodes, deleteEdges]);
 }

@@ -57,14 +57,6 @@ export default function FlowEditorPage() {
       <NodePalette />
       <div className="flex flex-1 flex-col overflow-hidden">
         <FlowToolbar isDirty={isDirty} onSave={handleSave} />
-        <div
-          className="flex h-8 flex-shrink-0 items-center px-4 text-xs"
-          style={{ borderBottom: '1px solid var(--border-subtle)', backgroundColor: 'var(--bg-surface)' }}
-        >
-          <p style={{ color: 'var(--text-tertiary)' }}>
-            Tips: Shift + drag = multi-select, Ctrl/Cmd + drag node = duplicate, Ctrl/Cmd + C/V = copy/paste flow, right-click selected nodes for actions.
-          </p>
-        </div>
         <div className="flex flex-1 overflow-hidden">
           <div className="flex-1 overflow-hidden">
             <FlowCanvas reactFlowWrapper={reactFlowWrapper} />

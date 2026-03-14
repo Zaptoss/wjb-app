@@ -25,8 +25,10 @@ interface FlowState {
   onConnect: (connection: Connection) => void;
   addNode: (node: FlowNode) => void;
   setNodePosition: (id: string, position: { x: number; y: number }) => void;
+  setNodesPositions: (positions: Array<{ id: string; position: { x: number; y: number } }>) => void;
   deleteNode: (id: string) => void;
   deleteNodes: (ids: string[]) => void;
+  deleteEdges: (ids: string[]) => void;
   clearFlow: () => void;
   updateNodeData: (id: string, patch: Partial<NodeData>) => void;
   deleteEdge: (id: string) => void;
@@ -41,6 +43,7 @@ interface FlowState {
   copySelected: (ids: string[]) => void;
   pasteFlow: (position?: { x: number; y: number }) => void;
   duplicateNode: (id: string) => void;
+  duplicateSelectionFromDrag: (nodeIds: string[], delta: { x: number; y: number }) => void;
   duplicateNodeFromDrag: (
     id: string,
     sourcePosition: { x: number; y: number },
@@ -103,6 +106,18 @@ export const useFlowStore = create<FlowState>((set, get) => ({
       ),
     })),
 
+  setNodesPositions: (positions) =>
+    set((state) => {
+      if (!positions.length) return {};
+      const posMap = new Map(positions.map((item) => [item.id, item.position]));
+      return {
+        nodes: state.nodes.map((node) => {
+          const position = posMap.get(node.id);
+          return position ? { ...node, position } : node;
+        }),
+      };
+    }),
+
   deleteNode: (id) =>
     set((state) => ({
       ...pushHistory(state),
@@ -124,6 +139,20 @@ export const useFlowStore = create<FlowState>((set, get) => ({
           state.selectedNodeId && idSet.has(state.selectedNodeId)
             ? null
             : state.selectedNodeId,
+      };
+    }),
+
+  deleteEdges: (ids) =>
+    set((state) => {
+      if (ids.length === 0) return {};
+      const idSet = new Set(ids);
+      return {
+        ...pushHistory(state),
+        edges: state.edges.filter((edge) => !idSet.has(edge.id)),
+        selectedEdgeId:
+          state.selectedEdgeId && idSet.has(state.selectedEdgeId)
+            ? null
+            : state.selectedEdgeId,
       };
     }),
 
@@ -308,6 +337,50 @@ export const useFlowStore = create<FlowState>((set, get) => ({
       nodes: [...s.nodes, newNode],
     }));
   },
+
+  duplicateSelectionFromDrag: (nodeIds, delta) =>
+    set((state) => {
+      if (!nodeIds.length) return {};
+      const idSet = new Set(nodeIds);
+      const sourceNodes = state.nodes.filter((node) => idSet.has(node.id));
+      if (!sourceNodes.length) return {};
+
+      const idMap = new Map<string, string>();
+      sourceNodes.forEach((node) => {
+        idMap.set(node.id, crypto.randomUUID());
+      });
+
+      const duplicateNodes: FlowNode[] = sourceNodes.map((node) => ({
+        ...deepClone(node),
+        id: idMap.get(node.id)!,
+        position: {
+          x: node.position.x + delta.x,
+          y: node.position.y + delta.y,
+        },
+        selected: true,
+      }));
+
+      const duplicateEdges: FlowEdge[] = state.edges
+        .filter((edge) => idSet.has(edge.source) && idSet.has(edge.target))
+        .map((edge) => ({
+          ...deepClone(edge),
+          id: crypto.randomUUID(),
+          source: idMap.get(edge.source)!,
+          target: idMap.get(edge.target)!,
+          selected: true,
+        }));
+
+      const currentNodes = state.nodes.map((node) => ({ ...node, selected: false }));
+      const currentEdges = state.edges.map((edge) => ({ ...edge, selected: false }));
+
+      return {
+        ...pushHistory(state),
+        nodes: [...currentNodes, ...duplicateNodes],
+        edges: [...currentEdges, ...duplicateEdges],
+        selectedNodeId: null,
+        selectedEdgeId: null,
+      };
+    }),
 
   duplicateNodeFromDrag: (id, sourcePosition, duplicatePosition) =>
     set((state) => {

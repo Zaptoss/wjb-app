@@ -56,6 +56,8 @@ export function FlowCanvas({ reactFlowWrapper }: Props) {
   const addNode = useFlowStore((s) => s.addNode);
   const pasteFlow = useFlowStore((s) => s.pasteFlow);
   const setNodePosition = useFlowStore((s) => s.setNodePosition);
+  const setNodesPositions = useFlowStore((s) => s.setNodesPositions);
+  const duplicateSelectionFromDrag = useFlowStore((s) => s.duplicateSelectionFromDrag);
   const duplicateNodeFromDrag = useFlowStore((s) => s.duplicateNodeFromDrag);
   const setSelectedNodeId = useFlowStore((s) => s.setSelectedNodeId);
   const setSelectedEdgeId = useFlowStore((s) => s.setSelectedEdgeId);
@@ -66,15 +68,19 @@ export function FlowCanvas({ reactFlowWrapper }: Props) {
   } | null>(null);
 
   const [rfInstance, setRfInstance] = useState<ReturnType<typeof useFlowStore> | null>(null);
-  const [dragPreview, setDragPreview] = useState<{
-    position: { x: number; y: number };
-    width: number;
-    height: number;
-  } | null>(null);
+  const [dragPreview, setDragPreview] = useState<
+    Array<{
+      id: string;
+      position: { x: number; y: number };
+      width: number;
+      height: number;
+    }>
+  >([]);
   const duplicateDragRef = useRef<{
-    nodeId: string;
-    sourcePosition: { x: number; y: number };
-    previewSize: { width: number; height: number };
+    nodeIds: string[];
+    anchorId: string;
+    sourcePositions: Record<string, { x: number; y: number }>;
+    previewSizes: Record<string, { width: number; height: number }>;
   } | null>(null);
 
   const onDragOver = useCallback((e: React.DragEvent) => {
@@ -199,28 +205,58 @@ export function FlowCanvas({ reactFlowWrapper }: Props) {
 
     if (!withModifier) {
       duplicateDragRef.current = null;
-      setDragPreview(null);
+      setDragPreview([]);
       return;
     }
 
-    const width = Math.max(120, node.width ?? 220);
-    const height = Math.max(60, node.height ?? 96);
-    duplicateDragRef.current = {
-      nodeId: node.id,
-      sourcePosition: { ...node.position },
-      previewSize: { width, height },
-    };
-    setDragPreview({
-      position: { ...node.position },
-      width,
-      height,
+    const selectedIds = nodes.filter((item) => item.selected).map((item) => item.id);
+    const nodeIds =
+      selectedIds.length > 1 && selectedIds.includes(node.id) ? selectedIds : [node.id];
+
+    const sourceNodes = nodes.filter((item) => nodeIds.includes(item.id));
+    if (!sourceNodes.length) {
+      duplicateDragRef.current = null;
+      setDragPreview([]);
+      return;
+    }
+
+    const sourcePositions: Record<string, { x: number; y: number }> = {};
+    const previewSizes: Record<string, { width: number; height: number }> = {};
+    sourceNodes.forEach((item) => {
+      sourcePositions[item.id] = { ...item.position };
+      previewSizes[item.id] = {
+        width: Math.max(120, item.width ?? 220),
+        height: Math.max(60, item.height ?? 96),
+      };
     });
-  }, []);
+
+    duplicateDragRef.current = {
+      nodeIds,
+      anchorId: node.id,
+      sourcePositions,
+      previewSizes,
+    };
+    setDragPreview(
+      sourceNodes.map((item) => ({
+        id: item.id,
+        position: { ...item.position },
+        width: previewSizes[item.id]!.width,
+        height: previewSizes[item.id]!.height,
+      }))
+    );
+  }, [nodes]);
 
   const onNodeDrag: OnNodeDrag<FlowNode> = useCallback(
     (event, node) => {
       const draft = duplicateDragRef.current;
-      if (!draft || draft.nodeId !== node.id) return;
+      if (!draft || node.id !== draft.anchorId) return;
+
+      const anchorSource = draft.sourcePositions[draft.anchorId];
+      if (!anchorSource) return;
+      const delta = {
+        x: node.position.x - anchorSource.x,
+        y: node.position.y - anchorSource.y,
+      };
 
       const withModifier = Boolean(
         (event as { ctrlKey?: boolean }).ctrlKey ||
@@ -228,47 +264,105 @@ export function FlowCanvas({ reactFlowWrapper }: Props) {
       );
 
       if (!withModifier) {
+        const nextPositions = draft.nodeIds
+          .map((id) => {
+            const source = draft.sourcePositions[id];
+            if (!source) return null;
+            return {
+              id,
+              position: {
+                x: source.x + delta.x,
+                y: source.y + delta.y,
+              },
+            };
+          })
+          .filter((item): item is { id: string; position: { x: number; y: number } } => item !== null);
+
         duplicateDragRef.current = null;
-        setDragPreview(null);
-        setNodePosition(node.id, { ...node.position });
+        setDragPreview([]);
+        if (nextPositions.length === 1) setNodePosition(nextPositions[0]!.id, nextPositions[0]!.position);
+        else setNodesPositions(nextPositions);
         return;
       }
 
-      setDragPreview({
-        position: { ...node.position },
-        width: draft.previewSize.width,
-        height: draft.previewSize.height,
-      });
+      setDragPreview(
+        draft.nodeIds
+          .map((id) => {
+            const source = draft.sourcePositions[id];
+            const size = draft.previewSizes[id];
+            if (!source || !size) return null;
+
+            return {
+              id,
+              position: {
+                x: source.x + delta.x,
+                y: source.y + delta.y,
+              },
+              width: size.width,
+              height: size.height,
+            };
+          })
+          .filter(
+            (item): item is { id: string; position: { x: number; y: number }; width: number; height: number } =>
+              item !== null
+          )
+      );
     },
-    [setNodePosition]
+    [setNodePosition, setNodesPositions]
   );
 
   const onNodeDragStop: OnNodeDrag<FlowNode> = useCallback(
     (event, node) => {
       const draft = duplicateDragRef.current;
       duplicateDragRef.current = null;
-      setDragPreview(null);
-      if (!draft || draft.nodeId !== node.id) return;
+      setDragPreview([]);
+      if (!draft || node.id !== draft.anchorId) return;
+
+      const anchorSource = draft.sourcePositions[draft.anchorId];
+      if (!anchorSource) return;
+      const delta = {
+        x: node.position.x - anchorSource.x,
+        y: node.position.y - anchorSource.y,
+      };
 
       const withModifier = Boolean(
         (event as { ctrlKey?: boolean }).ctrlKey ||
         (event as { metaKey?: boolean }).metaKey
       );
       if (!withModifier) {
-        setNodePosition(node.id, { ...node.position });
+        const nextPositions = draft.nodeIds
+          .map((id) => {
+            const source = draft.sourcePositions[id];
+            if (!source) return null;
+            return {
+              id,
+              position: {
+                x: source.x + delta.x,
+                y: source.y + delta.y,
+              },
+            };
+          })
+          .filter((item): item is { id: string; position: { x: number; y: number } } => item !== null);
+
+        if (nextPositions.length === 1) setNodePosition(nextPositions[0]!.id, nextPositions[0]!.position);
+        else setNodesPositions(nextPositions);
         return;
       }
 
-      if (
-        draft.sourcePosition.x === node.position.x &&
-        draft.sourcePosition.y === node.position.y
-      ) {
+      if (delta.x === 0 && delta.y === 0) {
         return;
       }
 
-      duplicateNodeFromDrag(node.id, draft.sourcePosition, { ...node.position });
+      if (draft.nodeIds.length > 1) {
+        duplicateSelectionFromDrag(draft.nodeIds, delta);
+        return;
+      }
+
+      const sourcePosition = draft.sourcePositions[node.id];
+      if (!sourcePosition) return;
+      duplicateNodeFromDrag(node.id, sourcePosition, { ...node.position });
     },
-    [duplicateNodeFromDrag, setNodePosition]
+    [duplicateNodeFromDrag, duplicateSelectionFromDrag, setNodePosition, setNodesPositions]
   );
 
   const isValidConnection: IsValidConnection<FlowEdge> = useCallback((connection) => {
@@ -288,12 +382,14 @@ export function FlowCanvas({ reactFlowWrapper }: Props) {
       }
 
       const next = changes.map((change) => {
-        if (change.type !== 'position' || change.id !== draft.nodeId) return change;
+        if (change.type !== 'position' || !draft.nodeIds.includes(change.id)) return change;
+        const sourcePosition = draft.sourcePositions[change.id];
+        if (!sourcePosition) return change;
 
         return {
           ...change,
-          position: { ...draft.sourcePosition },
-          positionAbsolute: change.positionAbsolute,
+          position: { ...sourcePosition },
+          positionAbsolute: change.positionAbsolute ? { ...sourcePosition } : change.positionAbsolute,
         };
       });
 
@@ -326,22 +422,27 @@ export function FlowCanvas({ reactFlowWrapper }: Props) {
         onPaneContextMenu={onPaneContextMenu}
         onPaneClick={onPaneClick}
         fitView
-        deleteKeyCode="Delete"
+        deleteKeyCode={null}
         multiSelectionKeyCode="Shift"
       >
         <ZoomAwareBackground />
         <Controls />
         <MiniMap nodeStrokeWidth={3} zoomable pannable />
-        {dragPreview && (
+        {dragPreview.length > 0 && (
           <ViewportPortal>
-            <div
-              className="pointer-events-none absolute rounded-xl border-2 border-dashed border-sky-500 bg-sky-200/40 shadow-sm"
-              style={{
-                width: dragPreview.width,
-                height: dragPreview.height,
-                transform: `translate(${dragPreview.position.x}px, ${dragPreview.position.y}px)`,
-              }}
-            />
+            <>
+              {dragPreview.map((preview) => (
+                <div
+                  key={preview.id}
+                  className="pointer-events-none absolute rounded-xl border-2 border-dashed border-sky-500 bg-sky-200/40 shadow-sm"
+                  style={{
+                    width: preview.width,
+                    height: preview.height,
+                    transform: `translate(${preview.position.x}px, ${preview.position.y}px)`,
+                  }}
+                />
+              ))}
+            </>
           </ViewportPortal>
         )}
       </ReactFlow>
