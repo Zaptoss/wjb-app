@@ -1,31 +1,26 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using WellnessBuilder.Admin.Api.Requests;
 using WellnessBuilder.Admin.Api.Services;
 
 namespace WellnessBuilder.Admin.Api.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/admin/edges")]
-public class EdgesController : ControllerBase
+public class EdgesController(IEdgeService edgeService) : ControllerBase
 {
-    private readonly IEdgeService _edgeService;
-
-    public EdgesController(IEdgeService edgeService)
-    {
-        _edgeService = edgeService;
-    }
-
     [HttpPost]
     public async Task<IActionResult> Create(CreateEdgeRequest request)
     {
-        var edge = await _edgeService.CreateAsync(request);
+        var edge = await edgeService.CreateAsync(request);
         return CreatedAtAction(nameof(Create), new { id = edge.Id }, edge);
     }
 
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
     {
-        await _edgeService.DeleteAsync(id);
+        await edgeService.DeleteAsync(id);
         return NoContent();
     }
 
@@ -34,14 +29,14 @@ public class EdgesController : ControllerBase
         Guid edgeId,
         CreateConditionGroupRequest request)
     {
-        var edge = await _edgeService.AddConditionGroupAsync(edgeId, request);
+        var edge = await edgeService.AddConditionGroupAsync(edgeId, request);
         return Ok(edge);
     }
 
     [HttpDelete("condition-groups/{groupId:guid}")]
     public async Task<IActionResult> DeleteConditionGroup(Guid groupId)
     {
-        await _edgeService.DeleteConditionGroupAsync(groupId);
+        await edgeService.DeleteConditionGroupAsync(groupId);
         return NoContent();
     }
 }

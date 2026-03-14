@@ -4,10 +4,11 @@ using WellnessBuilder.Shared.Entities;
 
 namespace WellnessBuilder.Shared.Persistence.Configurations;
 
-public class ConditionGroupConfiguration : IEntityTypeConfiguration<ConditionGroup>
+public class ConditionGroupConfiguration : BaseEntityConfiguration<EdgeConditionGroup>
 {
-    public void Configure(EntityTypeBuilder<ConditionGroup> builder)
+    public override void Configure(EntityTypeBuilder<EdgeConditionGroup> builder)
     {
+        base.Configure(builder);
         builder.HasKey(g => g.Id);
 
         builder.HasOne(g => g.Edge)

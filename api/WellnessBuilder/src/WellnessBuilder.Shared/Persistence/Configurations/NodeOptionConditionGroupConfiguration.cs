@@ -4,17 +4,17 @@ using WellnessBuilder.Shared.Entities;
 
 namespace WellnessBuilder.Shared.Persistence.Configurations;
 
-public class OfferConditionGroupConfiguration : BaseEntityConfiguration<OfferConditionGroup>
+public class NodeOptionConditionGroupConfiguration : BaseEntityConfiguration<NodeOptionConditionGroup>
 {
-    public override void Configure(EntityTypeBuilder<OfferConditionGroup> builder)
+    public override void Configure(EntityTypeBuilder<NodeOptionConditionGroup> builder)
     {
         base.Configure(builder);
 
         builder.HasKey(g => g.Id);
 
-        builder.HasOne(g => g.OfferRule)
-            .WithMany(r => r.ConditionGroups)
-            .HasForeignKey(g => g.OfferRuleId)
+        builder.HasOne(g => g.NodeOption)
+            .WithMany(o => o.ConditionGroups)
+            .HasForeignKey(g => g.NodeOptionId)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasMany(g => g.Conditions)

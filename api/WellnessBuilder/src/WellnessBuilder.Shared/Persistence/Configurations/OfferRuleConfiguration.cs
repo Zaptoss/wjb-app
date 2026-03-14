@@ -4,10 +4,12 @@ using WellnessBuilder.Shared.Entities;
 
 namespace WellnessBuilder.Shared.Persistence.Configurations;
 
-public class OfferRuleConfiguration : IEntityTypeConfiguration<OfferRule>
+public class OfferRuleConfiguration : BaseEntityConfiguration<OfferRule>
 {
-    public void Configure(EntityTypeBuilder<OfferRule> builder)
+    public override void Configure(EntityTypeBuilder<OfferRule> builder)
     {
+        base.Configure(builder);
+
         builder.HasKey(r => r.Id);
 
         builder.HasOne(r => r.Offer)

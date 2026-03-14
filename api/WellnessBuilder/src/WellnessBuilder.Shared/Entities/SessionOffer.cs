@@ -1,6 +1,6 @@
 ﻿namespace WellnessBuilder.Shared.Entities;
 
-public class SessionOffer
+public class SessionOffer : BaseEntity
 {
     public Guid Id { get; set; }
     public Guid SessionId { get; set; }

@@ -13,7 +13,6 @@ public class NodeService(AppDbContext db) : INodeService
     {
         return await db.Nodes
             .Include(n => n.Options)
-            .OrderBy(n => n.DisplayOrder)
             .Select(n => MapToDto(n))
             .ToListAsync();
     }
@@ -36,13 +35,13 @@ public class NodeService(AppDbContext db) : INodeService
         {
             Id = Guid.NewGuid(),
             NodeType = Enum.Parse<NodeType>(request.Type, true),
+            FlowId = request.FlowId,
             Title = request.Title,
             Body = request.Body,
             InputType = request.InputType is null
                 ? null
                 : Enum.Parse<InputType>(request.InputType, true),
             AttributeKey = request.AttributeKey,
-            DisplayOrder = request.DisplayOrder,
             Options = request.Options.Select((o, i) => new NodeOption
             {
                 Id = Guid.NewGuid(),
@@ -74,7 +73,6 @@ public class NodeService(AppDbContext db) : INodeService
             ? null
             : Enum.Parse<InputType>(request.InputType, true);
         node.AttributeKey = request.AttributeKey;
-        node.DisplayOrder = request.DisplayOrder;
 
         db.NodeOptions.RemoveRange(node.Options);
         node.Options = request.Options.Select(o => new NodeOption

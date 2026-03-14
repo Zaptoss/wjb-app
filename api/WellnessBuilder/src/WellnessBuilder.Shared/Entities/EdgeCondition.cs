@@ -2,7 +2,7 @@
 
 namespace WellnessBuilder.Shared.Entities;
 
-public class Condition
+public class EdgeCondition : BaseEntity
 {
     public Guid Id { get; set; }
     public Guid GroupId { get; set; }
@@ -10,5 +10,5 @@ public class Condition
     public ConditionOperator Operator { get; set; }
     public required string Value { get; set; }
 
-    public ConditionGroup Group { get; set; } = null!;
+    public EdgeConditionGroup? Group { get; set; }
 }
