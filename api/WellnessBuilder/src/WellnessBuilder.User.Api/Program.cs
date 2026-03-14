@@ -19,6 +19,9 @@ public class Program
         builder.Services.AddScoped<IRuleEngine, RuleEngine>();
         builder.Services.AddScoped<IOfferResolver, OfferResolver>();
         builder.Services.AddScoped<ISessionService, SessionService>();
+        
+        builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+        builder.Services.AddProblemDetails();
 
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
@@ -38,7 +41,7 @@ public class Program
             db.Database.Migrate();
         }
 
-        app.UseMiddleware<GlobalExceptionHandler>();
+        app.UseExceptionHandler();
 
         app.MapControllers();
         app.Run();

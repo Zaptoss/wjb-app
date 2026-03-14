@@ -11,8 +11,7 @@ public class OfferResolver(AppDbContext db) : IOfferResolver
     public async Task<List<Offer>> ResolveAsync(Dictionary<string, string> context)
     {
         var offers = await db.Offers
-            .Include(o => o.Rules)
-            .ThenInclude(r => r.ConditionGroups)
+            .Include(o => o.ConditionGroups)
             .ThenInclude(g => g.Conditions)
             .ToListAsync();
 
@@ -20,16 +19,9 @@ public class OfferResolver(AppDbContext db) : IOfferResolver
             .Where(o => EvaluateOffer(o, context))
             .ToList();
     }
-
+    
     private bool EvaluateOffer(Offer offer, Dictionary<string, string> context)
-    {
-        return offer.Rules.Any(r => EvaluateRule(r, context));
-    }
-
-    private bool EvaluateRule(OfferRule rule, Dictionary<string, string> context)
-    {
-        return rule.ConditionGroups.Any(g => EvaluateGroup(g, context));
-    }
+        => offer.ConditionGroups.Any(g => EvaluateGroup(g, context));
 
     private bool EvaluateGroup(OfferConditionGroup group, Dictionary<string, string> context)
     {

@@ -6,5 +6,6 @@ public class UpdateOfferRequest
     public required string Description { get; set; }
     public required string DigitalPlanDetails { get; set; }
     public required string WellnessKitDetails { get; set; }
-    public List<CreateOfferRuleRequest> Rules { get; set; } = [];
+    public List<CreateConditionGroupRequest> ConditionGroups { get; set; } = [];
+    
 }

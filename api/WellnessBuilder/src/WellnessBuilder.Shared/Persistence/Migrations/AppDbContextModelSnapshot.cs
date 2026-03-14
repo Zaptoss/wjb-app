@@ -76,7 +76,7 @@ namespace WellnessBuilder.Shared.Persistence.Migrations
                     b.ToTable("Answers");
                 });
 
-            modelBuilder.Entity("WellnessBuilder.Shared.Entities.Edge", b =>
+            modelBuilder.Entity("WellnessBuilder.Shared.Entities.Edges.Edge", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -116,7 +116,7 @@ namespace WellnessBuilder.Shared.Persistence.Migrations
                         });
                 });
 
-            modelBuilder.Entity("WellnessBuilder.Shared.Entities.EdgeCondition", b =>
+            modelBuilder.Entity("WellnessBuilder.Shared.Entities.Edges.EdgeCondition", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -152,7 +152,7 @@ namespace WellnessBuilder.Shared.Persistence.Migrations
                     b.ToTable("EdgeConditions");
                 });
 
-            modelBuilder.Entity("WellnessBuilder.Shared.Entities.EdgeConditionGroup", b =>
+            modelBuilder.Entity("WellnessBuilder.Shared.Entities.Edges.EdgeConditionGroup", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -204,7 +204,7 @@ namespace WellnessBuilder.Shared.Persistence.Migrations
                     b.ToTable("Flow");
                 });
 
-            modelBuilder.Entity("WellnessBuilder.Shared.Entities.Node", b =>
+            modelBuilder.Entity("WellnessBuilder.Shared.Entities.Nodes.Node", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -240,7 +240,7 @@ namespace WellnessBuilder.Shared.Persistence.Migrations
                     b.ToTable("Nodes");
                 });
 
-            modelBuilder.Entity("WellnessBuilder.Shared.Entities.NodeOption", b =>
+            modelBuilder.Entity("WellnessBuilder.Shared.Entities.Nodes.NodeOption", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -276,7 +276,7 @@ namespace WellnessBuilder.Shared.Persistence.Migrations
                     b.ToTable("NodeOptions");
                 });
 
-            modelBuilder.Entity("WellnessBuilder.Shared.Entities.NodeOptionCondition", b =>
+            modelBuilder.Entity("WellnessBuilder.Shared.Entities.Nodes.NodeOptionCondition", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -312,7 +312,7 @@ namespace WellnessBuilder.Shared.Persistence.Migrations
                     b.ToTable("NodeOptionConditions");
                 });
 
-            modelBuilder.Entity("WellnessBuilder.Shared.Entities.NodeOptionConditionGroup", b =>
+            modelBuilder.Entity("WellnessBuilder.Shared.Entities.Nodes.NodeOptionConditionGroup", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -334,7 +334,7 @@ namespace WellnessBuilder.Shared.Persistence.Migrations
                     b.ToTable("NodeOptionConditionGroups");
                 });
 
-            modelBuilder.Entity("WellnessBuilder.Shared.Entities.Offer", b =>
+            modelBuilder.Entity("WellnessBuilder.Shared.Entities.Offers.Offer", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -374,7 +374,7 @@ namespace WellnessBuilder.Shared.Persistence.Migrations
                     b.ToTable("Offers");
                 });
 
-            modelBuilder.Entity("WellnessBuilder.Shared.Entities.OfferCondition", b =>
+            modelBuilder.Entity("WellnessBuilder.Shared.Entities.Offers.OfferCondition", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -410,29 +410,7 @@ namespace WellnessBuilder.Shared.Persistence.Migrations
                     b.ToTable("OfferConditions");
                 });
 
-            modelBuilder.Entity("WellnessBuilder.Shared.Entities.OfferConditionGroup", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("OfferRuleId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OfferRuleId");
-
-                    b.ToTable("OfferConditionGroups");
-                });
-
-            modelBuilder.Entity("WellnessBuilder.Shared.Entities.OfferRule", b =>
+            modelBuilder.Entity("WellnessBuilder.Shared.Entities.Offers.OfferConditionGroup", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -451,10 +429,10 @@ namespace WellnessBuilder.Shared.Persistence.Migrations
 
                     b.HasIndex("OfferId");
 
-                    b.ToTable("OfferRules");
+                    b.ToTable("OfferConditionGroups");
                 });
 
-            modelBuilder.Entity("WellnessBuilder.Shared.Entities.Session", b =>
+            modelBuilder.Entity("WellnessBuilder.Shared.Entities.Sessions.Session", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -471,7 +449,7 @@ namespace WellnessBuilder.Shared.Persistence.Migrations
                     b.ToTable("Sessions");
                 });
 
-            modelBuilder.Entity("WellnessBuilder.Shared.Entities.SessionOffer", b =>
+            modelBuilder.Entity("WellnessBuilder.Shared.Entities.Sessions.SessionOffer", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -503,13 +481,13 @@ namespace WellnessBuilder.Shared.Persistence.Migrations
 
             modelBuilder.Entity("WellnessBuilder.Shared.Entities.Answer", b =>
                 {
-                    b.HasOne("WellnessBuilder.Shared.Entities.Node", "Node")
+                    b.HasOne("WellnessBuilder.Shared.Entities.Nodes.Node", "Node")
                         .WithMany()
                         .HasForeignKey("NodeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("WellnessBuilder.Shared.Entities.Session", "Session")
+                    b.HasOne("WellnessBuilder.Shared.Entities.Sessions.Session", "Session")
                         .WithMany("Answers")
                         .HasForeignKey("SessionId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -520,15 +498,15 @@ namespace WellnessBuilder.Shared.Persistence.Migrations
                     b.Navigation("Session");
                 });
 
-            modelBuilder.Entity("WellnessBuilder.Shared.Entities.Edge", b =>
+            modelBuilder.Entity("WellnessBuilder.Shared.Entities.Edges.Edge", b =>
                 {
-                    b.HasOne("WellnessBuilder.Shared.Entities.Node", "FromNode")
+                    b.HasOne("WellnessBuilder.Shared.Entities.Nodes.Node", "FromNode")
                         .WithMany("OutgoingEdges")
                         .HasForeignKey("FromNodeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("WellnessBuilder.Shared.Entities.Node", "ToNode")
+                    b.HasOne("WellnessBuilder.Shared.Entities.Nodes.Node", "ToNode")
                         .WithMany("IncomingEdges")
                         .HasForeignKey("ToNodeId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -539,9 +517,9 @@ namespace WellnessBuilder.Shared.Persistence.Migrations
                     b.Navigation("ToNode");
                 });
 
-            modelBuilder.Entity("WellnessBuilder.Shared.Entities.EdgeCondition", b =>
+            modelBuilder.Entity("WellnessBuilder.Shared.Entities.Edges.EdgeCondition", b =>
                 {
-                    b.HasOne("WellnessBuilder.Shared.Entities.EdgeConditionGroup", "Group")
+                    b.HasOne("WellnessBuilder.Shared.Entities.Edges.EdgeConditionGroup", "Group")
                         .WithMany("Conditions")
                         .HasForeignKey("GroupId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -550,9 +528,9 @@ namespace WellnessBuilder.Shared.Persistence.Migrations
                     b.Navigation("Group");
                 });
 
-            modelBuilder.Entity("WellnessBuilder.Shared.Entities.EdgeConditionGroup", b =>
+            modelBuilder.Entity("WellnessBuilder.Shared.Entities.Edges.EdgeConditionGroup", b =>
                 {
-                    b.HasOne("WellnessBuilder.Shared.Entities.Edge", "Edge")
+                    b.HasOne("WellnessBuilder.Shared.Entities.Edges.Edge", "Edge")
                         .WithMany("ConditionGroups")
                         .HasForeignKey("EdgeId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -561,9 +539,9 @@ namespace WellnessBuilder.Shared.Persistence.Migrations
                     b.Navigation("Edge");
                 });
 
-            modelBuilder.Entity("WellnessBuilder.Shared.Entities.NodeOption", b =>
+            modelBuilder.Entity("WellnessBuilder.Shared.Entities.Nodes.NodeOption", b =>
                 {
-                    b.HasOne("WellnessBuilder.Shared.Entities.Node", "Node")
+                    b.HasOne("WellnessBuilder.Shared.Entities.Nodes.Node", "Node")
                         .WithMany("Options")
                         .HasForeignKey("NodeId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -572,9 +550,9 @@ namespace WellnessBuilder.Shared.Persistence.Migrations
                     b.Navigation("Node");
                 });
 
-            modelBuilder.Entity("WellnessBuilder.Shared.Entities.NodeOptionCondition", b =>
+            modelBuilder.Entity("WellnessBuilder.Shared.Entities.Nodes.NodeOptionCondition", b =>
                 {
-                    b.HasOne("WellnessBuilder.Shared.Entities.NodeOptionConditionGroup", "Group")
+                    b.HasOne("WellnessBuilder.Shared.Entities.Nodes.NodeOptionConditionGroup", "Group")
                         .WithMany("Conditions")
                         .HasForeignKey("GroupId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -583,9 +561,9 @@ namespace WellnessBuilder.Shared.Persistence.Migrations
                     b.Navigation("Group");
                 });
 
-            modelBuilder.Entity("WellnessBuilder.Shared.Entities.NodeOptionConditionGroup", b =>
+            modelBuilder.Entity("WellnessBuilder.Shared.Entities.Nodes.NodeOptionConditionGroup", b =>
                 {
-                    b.HasOne("WellnessBuilder.Shared.Entities.NodeOption", "NodeOption")
+                    b.HasOne("WellnessBuilder.Shared.Entities.Nodes.NodeOption", "NodeOption")
                         .WithMany("ConditionGroups")
                         .HasForeignKey("NodeOptionId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -594,9 +572,9 @@ namespace WellnessBuilder.Shared.Persistence.Migrations
                     b.Navigation("NodeOption");
                 });
 
-            modelBuilder.Entity("WellnessBuilder.Shared.Entities.OfferCondition", b =>
+            modelBuilder.Entity("WellnessBuilder.Shared.Entities.Offers.OfferCondition", b =>
                 {
-                    b.HasOne("WellnessBuilder.Shared.Entities.OfferConditionGroup", "Group")
+                    b.HasOne("WellnessBuilder.Shared.Entities.Offers.OfferConditionGroup", "Group")
                         .WithMany("Conditions")
                         .HasForeignKey("GroupId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -605,21 +583,10 @@ namespace WellnessBuilder.Shared.Persistence.Migrations
                     b.Navigation("Group");
                 });
 
-            modelBuilder.Entity("WellnessBuilder.Shared.Entities.OfferConditionGroup", b =>
+            modelBuilder.Entity("WellnessBuilder.Shared.Entities.Offers.OfferConditionGroup", b =>
                 {
-                    b.HasOne("WellnessBuilder.Shared.Entities.OfferRule", "OfferRule")
+                    b.HasOne("WellnessBuilder.Shared.Entities.Offers.Offer", "Offer")
                         .WithMany("ConditionGroups")
-                        .HasForeignKey("OfferRuleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("OfferRule");
-                });
-
-            modelBuilder.Entity("WellnessBuilder.Shared.Entities.OfferRule", b =>
-                {
-                    b.HasOne("WellnessBuilder.Shared.Entities.Offer", "Offer")
-                        .WithMany("Rules")
                         .HasForeignKey("OfferId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -627,15 +594,15 @@ namespace WellnessBuilder.Shared.Persistence.Migrations
                     b.Navigation("Offer");
                 });
 
-            modelBuilder.Entity("WellnessBuilder.Shared.Entities.SessionOffer", b =>
+            modelBuilder.Entity("WellnessBuilder.Shared.Entities.Sessions.SessionOffer", b =>
                 {
-                    b.HasOne("WellnessBuilder.Shared.Entities.Offer", "Offer")
+                    b.HasOne("WellnessBuilder.Shared.Entities.Offers.Offer", "Offer")
                         .WithMany()
                         .HasForeignKey("OfferId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("WellnessBuilder.Shared.Entities.Session", "Session")
+                    b.HasOne("WellnessBuilder.Shared.Entities.Sessions.Session", "Session")
                         .WithMany("AssignedOffers")
                         .HasForeignKey("SessionId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -646,17 +613,17 @@ namespace WellnessBuilder.Shared.Persistence.Migrations
                     b.Navigation("Session");
                 });
 
-            modelBuilder.Entity("WellnessBuilder.Shared.Entities.Edge", b =>
+            modelBuilder.Entity("WellnessBuilder.Shared.Entities.Edges.Edge", b =>
                 {
                     b.Navigation("ConditionGroups");
                 });
 
-            modelBuilder.Entity("WellnessBuilder.Shared.Entities.EdgeConditionGroup", b =>
+            modelBuilder.Entity("WellnessBuilder.Shared.Entities.Edges.EdgeConditionGroup", b =>
                 {
                     b.Navigation("Conditions");
                 });
 
-            modelBuilder.Entity("WellnessBuilder.Shared.Entities.Node", b =>
+            modelBuilder.Entity("WellnessBuilder.Shared.Entities.Nodes.Node", b =>
                 {
                     b.Navigation("IncomingEdges");
 
@@ -665,32 +632,27 @@ namespace WellnessBuilder.Shared.Persistence.Migrations
                     b.Navigation("OutgoingEdges");
                 });
 
-            modelBuilder.Entity("WellnessBuilder.Shared.Entities.NodeOption", b =>
+            modelBuilder.Entity("WellnessBuilder.Shared.Entities.Nodes.NodeOption", b =>
                 {
                     b.Navigation("ConditionGroups");
                 });
 
-            modelBuilder.Entity("WellnessBuilder.Shared.Entities.NodeOptionConditionGroup", b =>
+            modelBuilder.Entity("WellnessBuilder.Shared.Entities.Nodes.NodeOptionConditionGroup", b =>
                 {
                     b.Navigation("Conditions");
                 });
 
-            modelBuilder.Entity("WellnessBuilder.Shared.Entities.Offer", b =>
-                {
-                    b.Navigation("Rules");
-                });
-
-            modelBuilder.Entity("WellnessBuilder.Shared.Entities.OfferConditionGroup", b =>
-                {
-                    b.Navigation("Conditions");
-                });
-
-            modelBuilder.Entity("WellnessBuilder.Shared.Entities.OfferRule", b =>
+            modelBuilder.Entity("WellnessBuilder.Shared.Entities.Offers.Offer", b =>
                 {
                     b.Navigation("ConditionGroups");
                 });
 
-            modelBuilder.Entity("WellnessBuilder.Shared.Entities.Session", b =>
+            modelBuilder.Entity("WellnessBuilder.Shared.Entities.Offers.OfferConditionGroup", b =>
+                {
+                    b.Navigation("Conditions");
+                });
+
+            modelBuilder.Entity("WellnessBuilder.Shared.Entities.Sessions.Session", b =>
                 {
                     b.Navigation("Answers");
 

@@ -28,9 +28,9 @@ public class OfferConfiguration : BaseEntityConfiguration<Offer>
             .IsRequired()
             .HasMaxLength(2000);
 
-        builder.HasMany(o => o.Rules)
-            .WithOne(r => r.Offer)
-            .HasForeignKey(r => r.OfferId)
+        builder.HasMany(o => o.ConditionGroups)
+            .WithOne(g => g.Offer)
+            .HasForeignKey(g => g.OfferId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

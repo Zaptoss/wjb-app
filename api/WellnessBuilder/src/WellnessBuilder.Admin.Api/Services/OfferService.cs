@@ -12,8 +12,7 @@ public class OfferService(AppDbContext db) : IOfferService
     public async Task<List<OfferDto>> GetAllAsync()
     {
         return await db.Offers
-            .Include(o => o.Rules)
-            .ThenInclude(r => r.ConditionGroups)
+            .Include(r => r.ConditionGroups)
             .ThenInclude(g => g.Conditions)
             .Select(o => MapToDto(o))
             .ToListAsync();
@@ -22,8 +21,7 @@ public class OfferService(AppDbContext db) : IOfferService
     public async Task<OfferDto> GetByIdAsync(Guid id)
     {
         var offer = await db.Offers
-            .Include(o => o.Rules)
-            .ThenInclude(r => r.ConditionGroups)
+            .Include(o => o.ConditionGroups)
             .ThenInclude(g => g.Conditions)
             .FirstOrDefaultAsync(o => o.Id == id);
 
@@ -43,19 +41,15 @@ public class OfferService(AppDbContext db) : IOfferService
             Description = request.Description,
             DigitalPlanDetails = request.DigitalPlanDetails,
             WellnessKitDetails = request.WellnessKitDetails,
-            Rules = request.Rules.Select(r => new OfferRule
+            ConditionGroups = request.ConditionGroups.Select(g => new OfferConditionGroup
             {
                 Id = Guid.NewGuid(),
-                ConditionGroups = r.ConditionGroups.Select(g => new OfferConditionGroup
+                Conditions = g.Conditions.Select(c => new OfferCondition
                 {
                     Id = Guid.NewGuid(),
-                    Conditions = g.Conditions.Select(c => new OfferCondition
-                    {
-                        Id = Guid.NewGuid(),
-                        AttributeKey = c.AttributeKey,
-                        Operator = Enum.Parse<ConditionOperator>(c.Operator, true),
-                        Value = c.Value
-                    }).ToList()
+                    AttributeKey = c.AttributeKey,
+                    Operator = Enum.Parse<ConditionOperator>(c.Operator, ignoreCase: true),
+                    Value = c.Value
                 }).ToList()
             }).ToList()
         };
@@ -69,8 +63,7 @@ public class OfferService(AppDbContext db) : IOfferService
     public async Task<OfferDto> UpdateAsync(Guid id, UpdateOfferRequest request)
     {
         var offer = await db.Offers
-            .Include(o => o.Rules)
-            .ThenInclude(r => r.ConditionGroups)
+            .Include(r => r.ConditionGroups)
             .ThenInclude(g => g.Conditions)
             .FirstOrDefaultAsync(o => o.Id == id);
 
@@ -82,22 +75,17 @@ public class OfferService(AppDbContext db) : IOfferService
         offer.DigitalPlanDetails = request.DigitalPlanDetails;
         offer.WellnessKitDetails = request.WellnessKitDetails;
 
-        // видаляємо старі rules і додаємо нові
-        db.OfferRules.RemoveRange(offer.Rules);
-        offer.Rules = request.Rules.Select(r => new OfferRule
+        db.OfferConditionGroups.RemoveRange(offer.ConditionGroups);
+        offer.ConditionGroups = request.ConditionGroups.Select(g => new OfferConditionGroup
         {
             Id = Guid.NewGuid(),
             OfferId = id,
-            ConditionGroups = r.ConditionGroups.Select(g => new OfferConditionGroup
+            Conditions = g.Conditions.Select(c => new OfferCondition
             {
                 Id = Guid.NewGuid(),
-                Conditions = g.Conditions.Select(c => new OfferCondition
-                {
-                    Id = Guid.NewGuid(),
-                    AttributeKey = c.AttributeKey,
-                    Operator = Enum.Parse<ConditionOperator>(c.Operator, true),
-                    Value = c.Value
-                }).ToList()
+                AttributeKey = c.AttributeKey,
+                Operator = Enum.Parse<ConditionOperator>(c.Operator, true),
+                Value = c.Value
             }).ToList()
         }).ToList();
 
