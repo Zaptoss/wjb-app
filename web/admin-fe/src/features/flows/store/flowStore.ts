@@ -33,6 +33,7 @@ interface FlowState {
   undo: () => void;
   redo: () => void;
   loadFlow: (draft: FlowDraft) => void;
+  resetFlow: () => void;
   copyFlow: () => void;
   duplicateNode: (id: string) => void;
 }
@@ -147,6 +148,18 @@ export const useFlowStore = create<FlowState>((set, get) => ({
       flowName: draft.name,
       nodes: draft.nodes,
       edges: draft.edges,
+      past: [],
+      future: [],
+      selectedNodeId: null,
+      selectedEdgeId: null,
+    }),
+
+  resetFlow: () =>
+    set({
+      flowId: '',
+      flowName: 'Untitled Flow',
+      nodes: [],
+      edges: [],
       past: [],
       future: [],
       selectedNodeId: null,

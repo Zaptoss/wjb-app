@@ -53,14 +53,16 @@ export default function FlowEditorPage() {
   };
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-gray-50">
-      <FlowToolbar isDirty={isDirty} onSave={handleSave} />
-      <div className="flex flex-1 overflow-hidden">
-        <NodePalette />
-        <div className="flex-1 overflow-hidden">
-          <FlowCanvas reactFlowWrapper={reactFlowWrapper} />
+    <div className="flex h-screen overflow-hidden" style={{ backgroundColor: 'var(--bg-body)' }}>
+      <NodePalette />
+      <div className="flex flex-1 flex-col overflow-hidden">
+        <FlowToolbar isDirty={isDirty} onSave={handleSave} />
+        <div className="flex flex-1 overflow-hidden">
+          <div className="flex-1 overflow-hidden">
+            <FlowCanvas reactFlowWrapper={reactFlowWrapper} />
+          </div>
+          <PropertyPanel />
         </div>
-        <PropertyPanel />
       </div>
     </div>
   );

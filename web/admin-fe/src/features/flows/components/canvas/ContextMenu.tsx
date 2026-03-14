@@ -47,12 +47,11 @@ export function ContextMenu({ target, mousePos, onClose, onAddNode }: Props) {
 
   const Divider = () => <div className="my-1 h-px bg-gray-100" />;
 
-  const NODE_TYPES = ['info', 'question', 'offer', 'end'] as const;
+  const NODE_TYPES = ['info', 'question', 'offer'] as const;
   const NODE_LABELS: Record<string, string> = {
     info: 'Add Info Page',
     question: 'Add Question',
     offer: 'Add Offer',
-    end: 'Add End Flow',
   };
 
   return createPortal(

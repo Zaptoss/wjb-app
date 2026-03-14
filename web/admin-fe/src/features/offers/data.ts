@@ -5,6 +5,16 @@ export interface Offer {
   category: string;
 }
 
+export const OFFER_CATEGORIES = [
+  { value: 'weight', label: 'Weight Loss' },
+  { value: 'strength', label: 'Strength' },
+  { value: 'joint', label: 'Joint-Friendly' },
+  { value: 'cardio', label: 'Cardio' },
+  { value: 'yoga', label: 'Yoga & Mobility' },
+  { value: 'stress', label: 'Stress Relief' },
+  { value: 'micro', label: 'Micro-Workouts' },
+];
+
 export const OFFERS: Offer[] = [
   { id: 'offer_1', name: 'Weight Loss Starter', category: 'weight', tagline: '4-week home plan' },
   { id: 'offer_2', name: 'Lean Strength Builder', category: 'strength', tagline: 'Gym progression program' },

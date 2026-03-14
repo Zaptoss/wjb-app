@@ -61,4 +61,5 @@ export interface FlowDraft {
   edges: FlowEdge[];
   updatedAt: string;
   isDirty: boolean;
+  isActive: boolean;
 }

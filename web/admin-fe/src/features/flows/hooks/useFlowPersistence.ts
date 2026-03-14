@@ -8,8 +8,9 @@ export function useFlowPersistence(flowId: string) {
   const flowName = useFlowStore((s) => s.flowName);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const persist = useCallback(() => {
+  const persist = useCallback(async () => {
     if (!flowId) return;
+    const existing = await db.flowDrafts.get(flowId);
     db.flowDrafts.put({
       id: flowId,
       name: flowName,
@@ -17,6 +18,7 @@ export function useFlowPersistence(flowId: string) {
       edges,
       updatedAt: new Date().toISOString(),
       isDirty: true,
+      isActive: existing?.isActive ?? false,
     });
   }, [flowId, flowName, nodes, edges]);
 

@@ -5,8 +5,10 @@ import {
   Controls,
   MiniMap,
   BackgroundVariant,
+  useOnViewportChange,
   type NodeMouseHandler,
   type EdgeMouseHandler,
+  type Viewport,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { useFlowStore } from '../../store/flowStore';
@@ -17,6 +19,28 @@ import type { FlowNode } from '../../types';
 
 interface Props {
   reactFlowWrapper: React.RefObject<HTMLDivElement>;
+}
+
+function ZoomAwareBackground() {
+  const [zoom, setZoom] = useState(1);
+
+  useOnViewportChange({
+    onChange: useCallback((viewport: Viewport) => {
+      setZoom(viewport.zoom);
+    }, []),
+  });
+
+  const dotSize = Math.max(1.2, 2.5 * zoom);
+
+  return (
+    <Background
+      variant={BackgroundVariant.Dots}
+      gap={20}
+      size={dotSize}
+      color="#D5D0C8"
+      style={{ backgroundColor: '#F0EDE7' }}
+    />
+  );
 }
 
 export function FlowCanvas({ reactFlowWrapper }: Props) {
@@ -141,7 +165,7 @@ export function FlowCanvas({ reactFlowWrapper }: Props) {
         deleteKeyCode="Delete"
         multiSelectionKeyCode="Shift"
       >
-        <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="#e2e8f0" />
+        <ZoomAwareBackground />
         <Controls />
         <MiniMap nodeStrokeWidth={3} zoomable pannable />
       </ReactFlow>

@@ -5,6 +5,8 @@ import { OfferNodePanel } from './panels/OfferNodePanel';
 import { EndNodePanel } from './panels/EndNodePanel';
 import type { NodeData, EdgeData } from '../../types';
 
+const panelStyle = { borderLeft: '1px solid var(--border-subtle)', backgroundColor: 'var(--bg-surface)' };
+
 export function PropertyPanel() {
   const selectedNodeId = useFlowStore((s) => s.selectedNodeId);
   const selectedEdgeId = useFlowStore((s) => s.selectedEdgeId);
@@ -33,19 +35,19 @@ export function PropertyPanel() {
 
   if (!selectedNode && !selectedEdge) {
     return (
-      <div className="flex w-72 flex-shrink-0 flex-col border-l border-gray-100 bg-white">
-        <div className="border-b border-gray-100 px-4 py-3">
-          <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-400">Properties</h2>
+      <div className="flex w-72 flex-shrink-0 flex-col" style={panelStyle}>
+        <div className="px-4 py-3" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+          <h2 className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-tertiary)' }}>Properties</h2>
         </div>
         <div className="flex flex-1 flex-col items-center justify-center gap-2 p-6 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full" style={{ backgroundColor: 'var(--bg-muted)' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" strokeWidth="2">
               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
               <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
             </svg>
           </div>
-          <p className="text-sm font-medium text-gray-500">No selection</p>
-          <p className="text-xs text-gray-400">Click a node or edge to edit its properties</p>
+          <p className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>No selection</p>
+          <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>Click a node or edge to edit its properties</p>
         </div>
       </div>
     );
@@ -54,20 +56,20 @@ export function PropertyPanel() {
   if (selectedEdge) {
     const edgeData = (selectedEdge.data as EdgeData) ?? { conditions: [] };
     return (
-      <div className="flex w-72 flex-shrink-0 flex-col border-l border-gray-100 bg-white">
-        <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
+      <div className="flex w-72 flex-shrink-0 flex-col" style={panelStyle}>
+        <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
           <div className="flex items-center gap-2">
             <span className="rounded bg-indigo-100 px-2 py-0.5 text-xs font-semibold text-indigo-700">Edge</span>
-            <h2 className="text-sm font-semibold text-gray-700">Conditions</h2>
+            <h2 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Conditions</h2>
           </div>
           <button onClick={() => deleteEdge(selectedEdgeId!)} className="text-xs text-red-500 hover:text-red-700">Delete</button>
         </div>
         <div className="flex-1 overflow-y-auto p-4">
           <div className="flex flex-col gap-3">
             {edgeData.conditions.map((cond, i) => (
-              <div key={cond.id} className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+              <div key={cond.id} className="rounded-lg p-3" style={{ border: '1px solid var(--border-default)', backgroundColor: 'var(--bg-surface-secondary)' }}>
                 <div className="mb-2 flex items-center justify-between">
-                  <span className="text-xs font-medium text-gray-500">Condition {i + 1}</span>
+                  <span className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>Condition {i + 1}</span>
                   <button
                     onClick={() => updateEdgeData(selectedEdgeId!, {
                       conditions: edgeData.conditions.filter((c) => c.id !== cond.id),
@@ -84,14 +86,16 @@ export function PropertyPanel() {
                     conditions: edgeData.conditions.map((c) => c.id === cond.id ? { ...c, attribute: e.target.value } : c),
                   })}
                   placeholder="attribute (e.g. goal)"
-                  className="mb-1.5 w-full rounded border border-gray-200 bg-white px-2 py-1 text-xs outline-none"
+                  className="mb-1.5 w-full rounded border px-2 py-1 text-xs outline-none"
+                  style={{ borderColor: 'var(--border-default)', backgroundColor: 'var(--bg-surface)', color: 'var(--text-primary)' }}
                 />
                 <select
                   value={cond.operator}
                   onChange={(e) => updateEdgeData(selectedEdgeId!, {
                     conditions: edgeData.conditions.map((c) => c.id === cond.id ? { ...c, operator: e.target.value as 'eq' | 'neq' | 'gt' | 'lt' | 'gte' | 'lte' | 'in' | 'nin' | 'contains' } : c),
                   })}
-                  className="mb-1.5 w-full rounded border border-gray-200 bg-white px-2 py-1 text-xs outline-none"
+                  className="mb-1.5 w-full rounded border px-2 py-1 text-xs outline-none"
+                  style={{ borderColor: 'var(--border-default)', backgroundColor: 'var(--bg-surface)', color: 'var(--text-primary)' }}
                 >
                   {(['eq','neq','gt','lt','gte','lte','in','nin','contains'] as const).map((op) => (
                     <option key={op} value={op}>{op}</option>
@@ -104,7 +108,8 @@ export function PropertyPanel() {
                     conditions: edgeData.conditions.map((c) => c.id === cond.id ? { ...c, value: e.target.value } : c),
                   })}
                   placeholder="value (e.g. weight_loss)"
-                  className="w-full rounded border border-gray-200 bg-white px-2 py-1 text-xs outline-none"
+                  className="w-full rounded border px-2 py-1 text-xs outline-none"
+                  style={{ borderColor: 'var(--border-default)', backgroundColor: 'var(--bg-surface)', color: 'var(--text-primary)' }}
                 />
               </div>
             ))}
@@ -127,8 +132,8 @@ export function PropertyPanel() {
   const data = node.data as NodeData;
 
   return (
-    <div className="flex w-72 flex-shrink-0 flex-col border-l border-gray-100 bg-white">
-      <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
+    <div className="flex w-72 flex-shrink-0 flex-col" style={panelStyle}>
+      <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
         <div className="flex items-center gap-2">
           <span className={`rounded px-2 py-0.5 text-xs font-semibold ${NODE_TYPE_COLORS[node.type ?? 'end']}`}>
             {NODE_TYPE_LABELS[node.type ?? 'end']}

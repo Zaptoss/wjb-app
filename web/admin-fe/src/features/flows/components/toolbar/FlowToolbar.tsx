@@ -16,7 +16,7 @@ export function FlowToolbar({ isDirty, onSave }: Props) {
   const navigate = useNavigate();
 
   return (
-    <div className="flex h-14 flex-shrink-0 items-center justify-between border-b border-gray-100 bg-white px-4">
+    <div className="flex h-14 flex-shrink-0 items-center justify-between px-4" style={{ borderBottom: '1px solid var(--border-subtle)', backgroundColor: 'var(--bg-surface)' }}>
       <div className="flex items-center gap-3">
         <button
           onClick={() => navigate('/flows')}
