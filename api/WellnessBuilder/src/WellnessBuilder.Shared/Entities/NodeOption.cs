@@ -10,5 +10,4 @@ public class NodeOption : BaseEntity
 
     public Node? Node { get; set; }
     public ICollection<NodeOptionConditionGroup> ConditionGroups { get; set; } = [];
-
 }

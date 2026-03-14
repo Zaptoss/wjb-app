@@ -24,7 +24,7 @@ public class NodeOptionConfiguration : BaseEntityConfiguration<NodeOption>
             .WithMany(n => n.Options)
             .HasForeignKey(o => o.NodeId)
             .OnDelete(DeleteBehavior.Cascade);
-        
+
         builder.HasIndex(e => new { e.NodeId, e.DisplayOrder }).IsUnique();
     }
 }

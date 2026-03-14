@@ -26,10 +26,10 @@ public class EdgeConfiguration : BaseEntityConfiguration<Edge>
             .WithOne(g => g.Edge)
             .HasForeignKey(g => g.EdgeId)
             .OnDelete(DeleteBehavior.Cascade);
-        
+
         builder.HasIndex(e => new { e.Priority, e.FromNodeId }).IsUnique();
         builder.HasIndex(e => new { e.FromNodeId, e.ToNodeId }).IsUnique();
-        
+
         builder.ToTable(t => t.HasCheckConstraint(
             "CK_Edge_FromNode_NotEqual_ToNode",
             "\"FromNodeId\" <> \"ToNodeId\""));

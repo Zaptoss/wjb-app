@@ -4,7 +4,7 @@ using WellnessBuilder.Shared.Entities;
 
 namespace WellnessBuilder.Shared.Persistence.Configurations;
 
-public abstract class BaseEntityConfiguration<TEntity> 
+public abstract class BaseEntityConfiguration<TEntity>
     : IEntityTypeConfiguration<TEntity>
     where TEntity : BaseEntity
 {

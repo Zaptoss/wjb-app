@@ -9,7 +9,7 @@ public class SessionOfferConfiguration : BaseEntityConfiguration<SessionOffer>
     public override void Configure(EntityTypeBuilder<SessionOffer> builder)
     {
         base.Configure(builder);
-        
+
         builder.HasKey(so => so.Id);
 
         builder.HasOne(so => so.Session)

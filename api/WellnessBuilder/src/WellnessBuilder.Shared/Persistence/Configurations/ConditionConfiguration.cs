@@ -9,7 +9,7 @@ public class ConditionConfiguration : BaseEntityConfiguration<EdgeCondition>
     public override void Configure(EntityTypeBuilder<EdgeCondition> builder)
     {
         base.Configure(builder);
-        
+
         builder.HasKey(c => c.Id);
 
         builder.Property(c => c.AttributeKey)

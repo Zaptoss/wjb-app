@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using WellnessBuilder.Admin.Api.Requests;
 using WellnessBuilder.Admin.Api.Services;
 
 namespace WellnessBuilder.Admin.Api.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/admin/offers")]
 public class OffersController(IOfferService offerService) : ControllerBase

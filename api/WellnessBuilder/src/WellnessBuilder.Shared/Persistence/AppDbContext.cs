@@ -25,11 +25,13 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Answer> Answers { get; set; }
     public DbSet<SessionOffer> SessionOffers { get; set; }
 
+    public DbSet<Admin> Admins { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
     }
-    
+
     public override int SaveChanges()
     {
         UpdateTimestamps();
@@ -41,7 +43,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         UpdateTimestamps();
         return base.SaveChangesAsync(cancellationToken);
     }
-    
+
     private void UpdateTimestamps()
     {
         var entries = ChangeTracker
@@ -57,10 +59,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 entry.Entity.UpdatedAt = now;
             }
 
-            if (entry.State == EntityState.Modified)
-            {
-                entry.Entity.UpdatedAt = now;
-            }
+            if (entry.State == EntityState.Modified) entry.Entity.UpdatedAt = now;
         }
     }
 }

@@ -9,7 +9,7 @@ public class OfferRuleConfiguration : BaseEntityConfiguration<OfferRule>
     public override void Configure(EntityTypeBuilder<OfferRule> builder)
     {
         base.Configure(builder);
-        
+
         builder.HasKey(r => r.Id);
 
         builder.HasOne(r => r.Offer)

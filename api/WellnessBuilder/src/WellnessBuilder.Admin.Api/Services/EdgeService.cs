@@ -19,11 +19,11 @@ public class EdgeService(AppDbContext db) : IEdgeService
 
         if (request.FromNodeId == request.ToNodeId)
             throw new InvalidOperationException("Edge cannot point to the same node");
-        
+
         var edge = new Edge
         {
             Id = Guid.NewGuid(),
-            FlowId =  request.FlowId,
+            FlowId = request.FlowId,
             FromNodeId = request.FromNodeId,
             ToNodeId = request.ToNodeId,
             Priority = request.Priority,

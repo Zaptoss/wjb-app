@@ -13,8 +13,8 @@ public class OfferService(AppDbContext db) : IOfferService
     {
         return await db.Offers
             .Include(o => o.Rules)
-                .ThenInclude(r => r.ConditionGroups)
-                    .ThenInclude(g => g.Conditions)
+            .ThenInclude(r => r.ConditionGroups)
+            .ThenInclude(g => g.Conditions)
             .Select(o => MapToDto(o))
             .ToListAsync();
     }
@@ -23,8 +23,8 @@ public class OfferService(AppDbContext db) : IOfferService
     {
         var offer = await db.Offers
             .Include(o => o.Rules)
-                .ThenInclude(r => r.ConditionGroups)
-                    .ThenInclude(g => g.Conditions)
+            .ThenInclude(r => r.ConditionGroups)
+            .ThenInclude(g => g.Conditions)
             .FirstOrDefaultAsync(o => o.Id == id);
 
         if (offer is null)
@@ -53,7 +53,7 @@ public class OfferService(AppDbContext db) : IOfferService
                     {
                         Id = Guid.NewGuid(),
                         AttributeKey = c.AttributeKey,
-                        Operator = Enum.Parse<ConditionOperator>(c.Operator, ignoreCase: true),
+                        Operator = Enum.Parse<ConditionOperator>(c.Operator, true),
                         Value = c.Value
                     }).ToList()
                 }).ToList()
@@ -70,8 +70,8 @@ public class OfferService(AppDbContext db) : IOfferService
     {
         var offer = await db.Offers
             .Include(o => o.Rules)
-                .ThenInclude(r => r.ConditionGroups)
-                    .ThenInclude(g => g.Conditions)
+            .ThenInclude(r => r.ConditionGroups)
+            .ThenInclude(g => g.Conditions)
             .FirstOrDefaultAsync(o => o.Id == id);
 
         if (offer is null)
@@ -95,7 +95,7 @@ public class OfferService(AppDbContext db) : IOfferService
                 {
                     Id = Guid.NewGuid(),
                     AttributeKey = c.AttributeKey,
-                    Operator = Enum.Parse<ConditionOperator>(c.Operator, ignoreCase: true),
+                    Operator = Enum.Parse<ConditionOperator>(c.Operator, true),
                     Value = c.Value
                 }).ToList()
             }).ToList()
@@ -117,12 +117,15 @@ public class OfferService(AppDbContext db) : IOfferService
         await db.SaveChangesAsync();
     }
 
-    private static OfferDto MapToDto(Offer offer) => new()
+    private static OfferDto MapToDto(Offer offer)
     {
-        Id = offer.Id,
-        Name = offer.Name,
-        Description = offer.Description,
-        DigitalPlanDetails = offer.DigitalPlanDetails,
-        WellnessKitDetails = offer.WellnessKitDetails
-    };
+        return new OfferDto
+        {
+            Id = offer.Id,
+            Name = offer.Name,
+            Description = offer.Description,
+            DigitalPlanDetails = offer.DigitalPlanDetails,
+            WellnessKitDetails = offer.WellnessKitDetails
+        };
+    }
 }
