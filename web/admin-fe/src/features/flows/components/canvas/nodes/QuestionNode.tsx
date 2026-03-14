@@ -14,8 +14,20 @@ export function QuestionNode({ id, data, selected }: NodeProps<QuestionNodeType>
       className={`min-w-[220px] max-w-[280px] rounded-xl border-2 bg-blue-50 ${selected ? 'border-blue-500 shadow-lg' : 'border-blue-200'} cursor-pointer shadow-sm transition-all`}
     >
       <div className="flex items-center gap-2 border-b border-blue-200 px-3 py-2">
-        <div className="flex h-5 w-5 items-center justify-center rounded bg-blue-200 text-blue-700">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <div className="flex h-5 w-5 items-center justify-center rounded bg-blue-700 text-white">
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.25"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M9.35 9.25a2.65 2.65 0 1 1 4.8 1.5c-.9.6-1.65 1.15-1.65 2.35" />
+            <circle cx="12" cy="17.4" r="0.9" fill="currentColor" stroke="none" />
+          </svg>
         </div>
         <span className="text-xs font-semibold uppercase tracking-wide text-blue-700">Question</span>
         <span className="ml-auto rounded-full bg-blue-200 px-2 py-0.5 text-[10px] font-medium text-blue-700">{data.answerType}</span>

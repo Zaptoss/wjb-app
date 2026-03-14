@@ -9,11 +9,24 @@ interface Props {
 export function FlowToolbar({ isDirty, onSave }: Props) {
   const flowName = useFlowStore((s) => s.flowName);
   const setFlowName = useFlowStore((s) => s.setFlowName);
+  const nodes = useFlowStore((s) => s.nodes);
   const past = useFlowStore((s) => s.past);
   const future = useFlowStore((s) => s.future);
+  const clipboardFlow = useFlowStore((s) => s.clipboardFlow);
+  const copyFlow = useFlowStore((s) => s.copyFlow);
+  const copySelected = useFlowStore((s) => s.copySelected);
+  const pasteFlow = useFlowStore((s) => s.pasteFlow);
   const undo = useFlowStore((s) => s.undo);
   const redo = useFlowStore((s) => s.redo);
   const navigate = useNavigate();
+  const canPaste = Boolean(clipboardFlow && clipboardFlow.nodes.length > 0);
+  const selectedNodeIds = nodes.filter((node) => node.selected).map((node) => node.id);
+  const hasSelection = selectedNodeIds.length > 0;
+
+  const handleCopy = () => {
+    if (hasSelection) copySelected(selectedNodeIds);
+    else copyFlow();
+  };
 
   return (
     <div className="flex h-14 flex-shrink-0 items-center justify-between px-4" style={{ borderBottom: '1px solid var(--border-subtle)', backgroundColor: 'var(--bg-surface)' }}>
@@ -56,6 +69,35 @@ export function FlowToolbar({ isDirty, onSave }: Props) {
             <path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"/>
           </svg>
         </button>
+        <button
+          onClick={handleCopy}
+          title={hasSelection ? 'Copy selected nodes (Ctrl/Cmd+C)' : 'Copy whole flow (Ctrl/Cmd+C)'}
+          className="flex items-center gap-1.5 rounded-md border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+          {hasSelection ? `Copy Selected (${selectedNodeIds.length})` : 'Copy Flow'}
+        </button>
+        <button
+          onClick={() => pasteFlow()}
+          disabled={!canPaste}
+          title="Paste copied flow (Ctrl/Cmd+V)"
+          className="flex items-center gap-1.5 rounded-md border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M19 21H8a2 2 0 0 1-2-2V7"/>
+            <path d="M5 3h11a2 2 0 0 1 2 2v11"/>
+            <path d="M9 3v4h6V3"/>
+          </svg>
+          Paste Flow
+        </button>
+        {!canPaste && (
+          <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
+            copy first
+          </span>
+        )}
         <button
           onClick={onSave}
           className="flex items-center gap-2 rounded-md bg-gray-900 px-4 py-1.5 text-sm font-medium text-white hover:bg-gray-700"
