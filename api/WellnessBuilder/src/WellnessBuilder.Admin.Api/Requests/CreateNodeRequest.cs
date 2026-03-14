@@ -2,6 +2,7 @@
 
 public class CreateNodeRequest
 {
+    public Guid FlowId { get; set; }
     public required string Type { get; set; }
     public required string Title { get; set; }
     public string? Body { get; set; }

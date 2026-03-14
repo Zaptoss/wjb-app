@@ -6,6 +6,7 @@ public class Node : BaseEntity
 {
     public Guid Id { get; set; }
     public NodeType NodeType { get; set; }
+    public required Guid FlowId { get; set; }
     public required string Title { get; set; }
     public string? Body { get; set; }
     public InputType? InputType { get; set; }

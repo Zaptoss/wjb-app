@@ -2,6 +2,7 @@
 
 public class CreateEdgeRequest
 {
+    public Guid FlowId { get; set; }
     public Guid FromNodeId { get; set; }
     public Guid ToNodeId { get; set; }
     public int Priority { get; set; }

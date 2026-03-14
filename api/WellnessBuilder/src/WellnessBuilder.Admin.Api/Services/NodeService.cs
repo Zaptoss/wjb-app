@@ -35,6 +35,7 @@ public class NodeService(AppDbContext db) : INodeService
         {
             Id = Guid.NewGuid(),
             NodeType = Enum.Parse<NodeType>(request.Type, true),
+            FlowId = request.FlowId,
             Title = request.Title,
             Body = request.Body,
             InputType = request.InputType is null

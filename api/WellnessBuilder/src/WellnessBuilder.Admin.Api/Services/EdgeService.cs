@@ -23,6 +23,7 @@ public class EdgeService(AppDbContext db) : IEdgeService
         var edge = new Edge
         {
             Id = Guid.NewGuid(),
+            FlowId =  request.FlowId,
             FromNodeId = request.FromNodeId,
             ToNodeId = request.ToNodeId,
             Priority = request.Priority,

@@ -38,6 +38,7 @@ public class OfferService(AppDbContext db) : IOfferService
         var offer = new Offer
         {
             Id = Guid.NewGuid(),
+            FlowId = request.FlowId,
             Name = request.Name,
             Description = request.Description,
             DigitalPlanDetails = request.DigitalPlanDetails,
