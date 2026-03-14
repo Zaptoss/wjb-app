@@ -1,0 +1,38 @@
+post:
+  tags:
+    - Taxes
+  summary: Import Sales Taxes from CSV file
+  requestBody:
+    required: true
+    content:
+      multipart/form-data:
+        schema:
+          type: object
+          required:
+            - file
+          properties:
+            file:
+              type: string
+              format: binary
+              description: CSV file to upload
+        encoding:
+          file:
+            contentType: text/csv
+  responses:
+    "200":
+      description: Import successful
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              imported:
+                type: integer                
+    "400":
+      description: CSV format error
+      content:
+        text/plain:
+          schema:
+            type: string
+    "500":
+      description: Internal Server Error

@@ -1,0 +1,28 @@
+version: '3.9'
+
+# Local container testing — not for production deployment.
+# Run: docker-compose up --build
+#
+# For actual development use `npm run dev` (Vite dev server with HMR).
+# This compose file is for testing the production Docker image locally.
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: int20h-web:local
+    ports:
+      - "3000:80"
+    environment:
+      # Override with your local API server address
+      APP_API_URL: "http://localhost:8000"
+      APP_WS_URL:  "ws://localhost:8000"
+      APP_ENV:     "development"
+      APP_VERSION: "local"
+      APP_SENTRY_DSN: ""
+      APP_FEATURE_FLAGS: '{"newDashboard":false}'
+    # Nginx temp dirs must be writable; everything else can be read-only
+    tmpfs:
+      - /var/cache/nginx
+      - /var/run

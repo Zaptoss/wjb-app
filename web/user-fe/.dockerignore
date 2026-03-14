@@ -1,0 +1,36 @@
+# Dependencies — installed fresh inside container
+node_modules
+
+# Build output — produced inside container
+dist
+
+# Version control
+.git
+.gitignore
+.gitattributes
+
+# Docs
+*.md
+
+# Local environment files — NEVER include secrets in the image
+.env
+.env.*
+!.env.example
+
+# Editor configs
+.vscode
+.idea
+*.code-workspace
+
+# Test outputs
+coverage
+
+# Logs
+*.log
+npm-debug.log*
+
+# Generated API client — re-generated during CI build
+src/api-generated
+
+# Docker compose files (not needed inside the image)
+docker-compose*.yml

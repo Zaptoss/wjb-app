@@ -1,0 +1,4 @@
+# Auto-generated API client — do not commit generated files.
+# Re-generate with: npm run generate:api
+*
+!.gitignore

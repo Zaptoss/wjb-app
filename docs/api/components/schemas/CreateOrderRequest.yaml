@@ -1,0 +1,23 @@
+type: object
+required:
+  - longitude
+  - latitude
+  - subTotal
+  - orderData
+properties:
+  longitude:
+    type: number
+    format: double
+    example: -122.4194
+  latitude:
+    type: number
+    format: double
+    example: 37.7749
+  subTotal:
+    type: number
+    format: double
+    example: 100.50
+  orderData:
+    type: string
+    format: date-time
+    example: "2026-02-28T17:29:00.000Z"

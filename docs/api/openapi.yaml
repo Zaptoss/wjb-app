@@ -1,0 +1,37 @@
+openapi: 3.0.3
+info:
+  title: Orders API
+  version: 1.0.0
+  description: API for importing and managing delivery orders
+
+servers:
+  - url: https://api.brainybobs.xyz/
+    description: Production server
+
+paths:
+  /api/login:
+    $ref: ./paths/auth/login.yaml
+
+  /api/orders:
+    $ref: ./paths/orders/list.yaml
+  /api/orders/import:
+    $ref: ./paths/orders/import.yaml
+
+  /api/taxes/import:
+    $ref: ./paths/taxes/import.yaml
+
+components:
+  schemas:
+    CreateOrderRequest:
+      $ref: ./components/schemas/CreateOrderRequest.yaml
+    Order:
+      $ref: ./components/schemas/Order.yaml
+    loginRequest:
+      $ref: ./components/schemas/loginRequest.yaml
+
+  securitySchemes:
+    cookieAuth:
+      $ref: ./components/securitySchemes/cookieAuth.yaml
+
+security:
+  - cookieAuth: []

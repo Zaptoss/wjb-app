@@ -1,0 +1,306 @@
+openapi: 3.0.3
+info:
+  title: Orders API
+  version: 1.0.0
+  description: API for importing and managing delivery orders
+servers:
+  - url: https://api.brainybobs.xyz/
+    description: Production server
+security:
+  - cookieAuth: []
+paths:
+  /api/login:
+    post:
+      tags:
+        - Auth
+      summary: Perform authentication
+      description: Obtain the user''s login and password to perform the authentication procedure
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/loginRequest'
+      security: []
+      responses:
+        '200':
+          description: Logged in successfully
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: TaxAuth=abcde12345; Path=/; samesite=lax; HttpOnly
+        '401':
+          description: Invalid credentials
+          content:
+            text/plain:
+              schema:
+                type: string
+        '500':
+          description: Internal Server Error
+  /api/orders:
+    post:
+      tags:
+        - Orders
+      summary: Create order manually
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrderRequest'
+      responses:
+        '200':
+          description: Order created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '500':
+          description: Internal Server Error
+    get:
+      tags:
+        - Orders
+      summary: Get list of orders
+      parameters:
+        - name: Page
+          in: query
+          description: Page number from 1
+          schema:
+            type: integer
+            minimum: 1
+            example: 1
+        - name: PageSize
+          in: query
+          description: Number of orders per page
+          schema:
+            type: integer
+            minimum: 1
+            example: 20
+        - name: From
+          in: query
+          description: Data creation (from)
+          schema:
+            type: string
+            format: date-time
+        - name: To
+          in: query
+          description: Data creation (to)
+          schema:
+            type: string
+            format: date-time
+        - name: MinTotal
+          in: query
+          description: Total amount (from)
+          schema:
+            type: number
+        - name: SortBy
+          in: query
+          description: Sort column
+          schema:
+            type: string
+            enum:
+              - timestamp
+              - subtotal
+              - compositeRate
+              - taxAmount
+              - totalAmount
+              - locationValid
+            default: timestamp
+            example: totalAmount
+        - name: SortDir
+          in: query
+          description: Sort direction
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: desc
+            example: asc
+      responses:
+        '200':
+          description: List of orders
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - items
+                properties:
+                  items:
+                    $ref: '#/components/schemas/Order'
+        '204':
+          description: No content — no matching data
+        '500':
+          description: Internal Server Error
+  /api/orders/import:
+    post:
+      tags:
+        - Import
+      summary: Import orders from CSV file
+      description: Upload CSV file with columns id, longitude, latitude, timestamp, subtotal
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: CSV file to upload
+            encoding:
+              file:
+                contentType: text/csv
+      responses:
+        '200':
+          description: Import successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  imported:
+                    type: integer
+        '400':
+          description: CSV format error
+          content:
+            text/plain:
+              schema:
+                type: string
+        '500':
+          description: Internal Server Error
+  /api/taxes/import:
+    post:
+      tags:
+        - Taxes
+      summary: Import Sales Taxes from CSV file
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: CSV file to upload
+            encoding:
+              file:
+                contentType: text/csv
+      responses:
+        '200':
+          description: Import successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  imported:
+                    type: integer
+        '400':
+          description: CSV format error
+          content:
+            text/plain:
+              schema:
+                type: string
+        '500':
+          description: Internal Server Error
+components:
+  schemas:
+    CreateOrderRequest:
+      type: object
+      required:
+        - longitude
+        - latitude
+        - subTotal
+        - orderData
+      properties:
+        longitude:
+          type: number
+          format: double
+          example: -122.4194
+        latitude:
+          type: number
+          format: double
+          example: 37.7749
+        subTotal:
+          type: number
+          format: double
+          example: 100.5
+        orderData:
+          type: string
+          format: date-time
+          example: '2026-02-28T17:29:00.000Z'
+    Order:
+      type: object
+      required:
+        - id
+        - compositeTaxRate
+        - taxRateAmount
+        - totalAmount
+        - subTotal
+        - longitude
+        - latitude
+        - isLocationValid
+        - orderDate
+        - stateRate
+        - stateName
+        - countyRate
+        - countyName
+        - cityRate
+        - specialRate
+      properties:
+        id:
+          type: number
+        compositeTaxRate:
+          type: number
+        taxRateAmount:
+          type: number
+        totalAmount:
+          type: number
+        subTotal:
+          type: number
+        longitude:
+          type: number
+        latitude:
+          type: number
+        isLocationValid:
+          type: boolean
+        orderDate:
+          type: string
+          format: data-time
+        stateRate:
+          type: number
+        stateName:
+          type: string
+        countyRate:
+          type: number
+        cityName:
+          type: string
+        specialRate:
+          type: number
+        special:
+          type: string
+    loginRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: TaxAuth

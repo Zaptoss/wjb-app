@@ -1,0 +1,25 @@
+# Dependencies
+node_modules
+
+# Build output
+dist
+
+# Environment files — never commit secrets
+.env
+.env.*
+!.env.example
+
+# Generated API client — re-generated via npm run generate:api
+src/api-generated/*
+!src/api-generated/.gitignore
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor
+.vscode
+.idea
+
+# OS
+.DS_Store
