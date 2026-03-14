@@ -11,10 +11,21 @@ export function QuestionNode({ id, data, selected }: NodeProps<QuestionNodeType>
   return (
     <div
       onClick={() => setSelectedNodeId(id)}
-      className={`min-w-[220px] max-w-[280px] rounded-xl border-2 bg-blue-50 ${selected ? 'border-blue-500 shadow-lg' : 'border-blue-200'} cursor-pointer shadow-sm transition-all`}
+      className="min-w-[220px] max-w-[280px] cursor-pointer rounded-xl border-2 shadow-sm transition-all"
+      style={{
+        backgroundColor: 'var(--node-question-bg)',
+        borderColor: selected ? 'var(--node-question-border-selected)' : 'var(--node-question-border)',
+        boxShadow: selected ? '0 10px 28px rgba(0, 0, 0, 0.22)' : undefined,
+      }}
     >
-      <div className="flex items-center gap-2 border-b border-blue-200 px-3 py-2">
-        <div className="flex h-5 w-5 items-center justify-center rounded bg-blue-700 text-white">
+      <div
+        className="flex items-center gap-2 border-b px-3 py-2"
+        style={{ borderBottomColor: 'var(--node-question-divider)' }}
+      >
+        <div
+          className="flex h-5 w-5 items-center justify-center rounded"
+          style={{ backgroundColor: 'var(--node-question-icon-bg)', color: 'var(--node-question-icon-text)' }}
+        >
           <svg
             width="13"
             height="13"
@@ -29,8 +40,15 @@ export function QuestionNode({ id, data, selected }: NodeProps<QuestionNodeType>
             <circle cx="12" cy="17.4" r="0.9" fill="currentColor" stroke="none" />
           </svg>
         </div>
-        <span className="text-xs font-semibold uppercase tracking-wide text-blue-700">Question</span>
-        <span className="ml-auto rounded-full bg-blue-200 px-2 py-0.5 text-[10px] font-medium text-blue-700">{data.answerType}</span>
+        <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--node-question-label)' }}>
+          Question
+        </span>
+        <span
+          className="ml-auto rounded-full px-2 py-0.5 text-[10px] font-medium"
+          style={{ backgroundColor: 'var(--node-question-badge-bg)', color: 'var(--node-question-badge-text)' }}
+        >
+          {data.answerType}
+        </span>
       </div>
       <div className="px-3 py-2">
         {data.imageUrl && (
@@ -40,29 +58,57 @@ export function QuestionNode({ id, data, selected }: NodeProps<QuestionNodeType>
             className="mb-3 h-24 w-full rounded-lg object-cover"
           />
         )}
-        <p className="text-sm font-medium text-gray-800">{data.title || 'Untitled'}</p>
-        {data.text && <p className="mt-1 line-clamp-2 text-xs text-gray-500">{data.text}</p>}
+        <p className="text-sm font-medium" style={{ color: 'var(--node-question-title)' }}>
+          {data.title || 'Untitled'}
+        </p>
+        {data.text && (
+          <p className="mt-1 line-clamp-2 text-xs" style={{ color: 'var(--node-question-body)' }}>
+            {data.text}
+          </p>
+        )}
       </div>
       {options.length > 0 && (
-        <div className="border-t border-blue-100 px-3 pb-2 pt-1">
+        <div className="border-t px-3 pb-2 pt-1" style={{ borderTopColor: 'var(--node-question-divider)' }}>
           {options.map((opt) => (
             <div key={opt.id} className="relative my-1 flex items-center" style={{ minHeight: 24 }}>
-              <div className="h-1.5 w-1.5 rounded-full bg-blue-300" />
-              <span className="ml-2 flex-1 truncate text-xs text-gray-600">{opt.label}</span>
+              <div className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: 'var(--node-question-option-dot)' }} />
+              <span className="ml-2 flex-1 truncate text-xs" style={{ color: 'var(--node-question-option-text)' }}>
+                {opt.label}
+              </span>
               <Handle
                 type="source"
                 position={Position.Right}
                 id={opt.id}
-                className="!border-blue-400 !bg-blue-100 !top-1/2 !-translate-y-1/2 !right-[-13px]"
+                className="!right-[-13px] !top-1/2 !-translate-y-1/2"
+                style={{
+                  borderColor: 'var(--node-question-handle-border)',
+                  backgroundColor: 'var(--node-question-handle-bg)',
+                }}
               />
             </div>
           ))}
         </div>
       )}
       {options.length === 0 && (
-        <Handle type="source" position={Position.Right} id="default" className="!border-blue-400 !bg-blue-100" />
+        <Handle
+          type="source"
+          position={Position.Right}
+          id="default"
+          style={{
+            borderColor: 'var(--node-question-handle-border)',
+            backgroundColor: 'var(--node-question-handle-bg)',
+          }}
+        />
       )}
-      <Handle type="target" position={Position.Left} className="!border-blue-400 !bg-blue-100 !left-[-6px]" />
+      <Handle
+        type="target"
+        position={Position.Left}
+        className="!left-[-6px]"
+        style={{
+          borderColor: 'var(--node-question-handle-border)',
+          backgroundColor: 'var(--node-question-handle-bg)',
+        }}
+      />
     </div>
   );
 }

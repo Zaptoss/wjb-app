@@ -52,7 +52,7 @@ export function NodeImageField({ label, imageUrl, onChange }: NodeImageFieldProp
             type="button"
             onClick={() => onChange('')}
             className="rounded-lg px-3 py-2 text-sm font-medium transition-colors"
-            style={{ color: '#DC2626', backgroundColor: '#FEE2E2' }}
+            style={{ color: 'var(--danger-soft-text)', backgroundColor: 'var(--danger-soft-bg)' }}
           >
             Remove
           </button>

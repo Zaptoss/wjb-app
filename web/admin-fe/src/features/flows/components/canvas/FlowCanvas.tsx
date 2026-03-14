@@ -41,8 +41,8 @@ function ZoomAwareBackground() {
       variant={BackgroundVariant.Dots}
       gap={20}
       size={dotSize}
-      color="#D5D0C8"
-      style={{ backgroundColor: '#F0EDE7' }}
+      color="var(--canvas-dot)"
+      style={{ backgroundColor: 'var(--canvas-bg)' }}
     />
   );
 }
@@ -424,10 +424,20 @@ export function FlowCanvas({ reactFlowWrapper }: Props) {
         fitView
         deleteKeyCode={null}
         multiSelectionKeyCode="Shift"
+        proOptions={{ hideAttribution: true }}
       >
         <ZoomAwareBackground />
         <Controls />
-        <MiniMap nodeStrokeWidth={3} zoomable pannable />
+        <MiniMap
+          nodeStrokeWidth={2}
+          zoomable
+          pannable
+          bgColor="var(--canvas-minimap-bg)"
+          maskColor="var(--canvas-minimap-mask)"
+          maskStrokeColor="var(--canvas-minimap-mask-stroke)"
+          nodeColor="var(--canvas-minimap-node)"
+          nodeStrokeColor="var(--canvas-minimap-node-stroke)"
+        />
         {dragPreview.length > 0 && (
           <ViewportPortal>
             <>

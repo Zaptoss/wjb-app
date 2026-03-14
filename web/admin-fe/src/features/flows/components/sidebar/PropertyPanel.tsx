@@ -20,12 +20,12 @@ function DeleteAction({
         type="button"
         onClick={onClick}
         className="w-full rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-colors"
-        style={{ backgroundColor: '#DC2626' }}
+        style={{ backgroundColor: 'var(--danger)' }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.backgroundColor = '#B91C1C';
+          e.currentTarget.style.backgroundColor = 'var(--danger-hover)';
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.backgroundColor = '#DC2626';
+          e.currentTarget.style.backgroundColor = 'var(--danger)';
         }}
       >
         {label}

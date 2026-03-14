@@ -30,14 +30,19 @@ export function ConditionEdge({
       <BaseEdge
         id={id}
         path={edgePath}
-        style={{ stroke: selected ? '#6366f1' : '#94a3b8', strokeWidth: selected ? 2 : 1.5 }}
+        style={{ stroke: selected ? 'var(--edge-selected)' : 'var(--edge-default)', strokeWidth: selected ? 2 : 1.5 }}
         markerEnd="url(#arrowhead)"
       />
       {hasConditions && (
         <EdgeLabelRenderer>
           <div
-            style={{ transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)` }}
-            className="pointer-events-none absolute rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-medium text-indigo-700 shadow-sm"
+            style={{
+              transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
+              backgroundColor: 'var(--edge-badge-bg)',
+              color: 'var(--edge-badge-text)',
+              border: '1px solid var(--edge-badge-border)',
+            }}
+            className="pointer-events-none absolute rounded-full px-2 py-0.5 text-[10px] font-medium shadow-sm"
           >
             {data!.conditions.length} condition{data!.conditions.length > 1 ? 's' : ''}
           </div>
