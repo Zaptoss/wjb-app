@@ -4,10 +4,12 @@ using WellnessBuilder.Shared.Entities;
 
 namespace WellnessBuilder.Shared.Persistence.Configurations;
 
-public class NodeOptionConfiguration : IEntityTypeConfiguration<NodeOption>
+public class NodeOptionConfiguration : BaseEntityConfiguration<NodeOption>
 {
-    public void Configure(EntityTypeBuilder<NodeOption> builder)
+    public override void Configure(EntityTypeBuilder<NodeOption> builder)
     {
+        base.Configure(builder);
+
         builder.HasKey(o => o.Id);
 
         builder.Property(o => o.Label)
@@ -22,5 +24,7 @@ public class NodeOptionConfiguration : IEntityTypeConfiguration<NodeOption>
             .WithMany(n => n.Options)
             .HasForeignKey(o => o.NodeId)
             .OnDelete(DeleteBehavior.Cascade);
+        
+        builder.HasIndex(e => new { e.NodeId, e.DisplayOrder }).IsUnique();
     }
 }

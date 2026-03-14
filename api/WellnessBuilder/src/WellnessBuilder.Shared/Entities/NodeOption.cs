@@ -1,6 +1,6 @@
 ﻿namespace WellnessBuilder.Shared.Entities;
 
-public class NodeOption
+public class NodeOption : BaseEntity
 {
     public Guid Id { get; set; }
     public Guid NodeId { get; set; }
@@ -9,4 +9,6 @@ public class NodeOption
     public int DisplayOrder { get; set; }
 
     public Node? Node { get; set; }
+    public ICollection<NodeOptionConditionGroup> ConditionGroups { get; set; } = [];
+
 }

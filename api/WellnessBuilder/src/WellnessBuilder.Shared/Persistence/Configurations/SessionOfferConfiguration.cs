@@ -4,10 +4,12 @@ using WellnessBuilder.Shared.Entities;
 
 namespace WellnessBuilder.Shared.Persistence.Configurations;
 
-public class SessionOfferConfiguration : IEntityTypeConfiguration<SessionOffer>
+public class SessionOfferConfiguration : BaseEntityConfiguration<SessionOffer>
 {
-    public void Configure(EntityTypeBuilder<SessionOffer> builder)
+    public override void Configure(EntityTypeBuilder<SessionOffer> builder)
     {
+        base.Configure(builder);
+        
         builder.HasKey(so => so.Id);
 
         builder.HasOne(so => so.Session)

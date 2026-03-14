@@ -1,6 +1,6 @@
 ﻿namespace WellnessBuilder.Shared.Entities;
 
-public class Offer
+public class Offer : BaseEntity
 {
     public Guid Id { get; set; }
     public required string Name { get; set; }

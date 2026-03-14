@@ -1,6 +1,6 @@
 ﻿namespace WellnessBuilder.Shared.Entities;
 
-public class Answer
+public class Answer : BaseEntity
 {
     public Guid Id { get; set; }
     public Guid SessionId { get; set; }

@@ -4,12 +4,12 @@ using WellnessBuilder.Shared.Entities;
 
 namespace WellnessBuilder.Shared.Persistence.Configurations;
 
-public class ConditionConfiguration : BaseEntityConfiguration<EdgeCondition>
+public class NodeOptionConditionConfiguration : BaseEntityConfiguration<NodeOptionCondition>
 {
-    public override void Configure(EntityTypeBuilder<EdgeCondition> builder)
+    public override void Configure(EntityTypeBuilder<NodeOptionCondition> builder)
     {
         base.Configure(builder);
-        
+
         builder.HasKey(c => c.Id);
 
         builder.Property(c => c.AttributeKey)

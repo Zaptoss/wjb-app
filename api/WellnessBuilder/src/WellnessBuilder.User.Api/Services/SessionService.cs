@@ -18,7 +18,6 @@ public class SessionService(
         var firstNode = await db.Nodes
             .Include(n => n.Options)
             .Where(n => !db.Edges.Any(e => e.ToNodeId == n.Id))
-            .OrderBy(n => n.DisplayOrder)
             .FirstOrDefaultAsync();
 
         if (firstNode is null)

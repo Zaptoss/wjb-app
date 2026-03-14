@@ -40,12 +40,12 @@ public class RuleEngine(AppDbContext db) : IRuleEngine
         return edge.ConditionGroups.Any(g => EvaluateGroup(g, context));
     }
 
-    private bool EvaluateGroup(ConditionGroup group, Dictionary<string, string> context)
+    private bool EvaluateGroup(EdgeConditionGroup group, Dictionary<string, string> context)
     {
         return group.Conditions.All(c => EvaluateCondition(c, context));
     }
 
-    private bool EvaluateCondition(Condition c, Dictionary<string, string> context)
+    private bool EvaluateCondition(EdgeCondition c, Dictionary<string, string> context)
     {
         return ConditionEvaluator.Evaluate(c.AttributeKey, c.Operator, c.Value, context);
     }

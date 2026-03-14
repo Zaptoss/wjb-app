@@ -17,16 +17,19 @@ public class EdgeService(AppDbContext db) : IEdgeService
         if (!fromExists || !toExists)
             throw new KeyNotFoundException("One or both nodes not found");
 
+        if (request.FromNodeId == request.ToNodeId)
+            throw new InvalidOperationException("Edge cannot point to the same node");
+        
         var edge = new Edge
         {
             Id = Guid.NewGuid(),
             FromNodeId = request.FromNodeId,
             ToNodeId = request.ToNodeId,
             Priority = request.Priority,
-            ConditionGroups = request.ConditionGroups.Select(g => new ConditionGroup
+            ConditionGroups = request.ConditionGroups.Select(g => new EdgeConditionGroup
             {
                 Id = Guid.NewGuid(),
-                Conditions = g.Conditions.Select(c => new Condition
+                Conditions = g.Conditions.Select(c => new EdgeCondition
                 {
                     Id = Guid.NewGuid(),
                     AttributeKey = c.AttributeKey,
@@ -63,11 +66,11 @@ public class EdgeService(AppDbContext db) : IEdgeService
         if (edge is null)
             throw new KeyNotFoundException($"Edge {edgeId} not found");
 
-        var group = new ConditionGroup
+        var group = new EdgeConditionGroup
         {
             Id = Guid.NewGuid(),
             EdgeId = edgeId,
-            Conditions = request.Conditions.Select(c => new Condition
+            Conditions = request.Conditions.Select(c => new EdgeCondition
             {
                 Id = Guid.NewGuid(),
                 AttributeKey = c.AttributeKey,
@@ -84,12 +87,12 @@ public class EdgeService(AppDbContext db) : IEdgeService
 
     public async Task DeleteConditionGroupAsync(Guid groupId)
     {
-        var group = await db.ConditionGroups.FirstOrDefaultAsync(g => g.Id == groupId);
+        var group = await db.EdgeConditionGroups.FirstOrDefaultAsync(g => g.Id == groupId);
 
         if (group is null)
             throw new KeyNotFoundException($"ConditionGroup {groupId} not found");
 
-        db.ConditionGroups.Remove(group);
+        db.EdgeConditionGroups.Remove(group);
         await db.SaveChangesAsync();
     }
 

@@ -4,10 +4,11 @@ using WellnessBuilder.Shared.Entities;
 
 namespace WellnessBuilder.Shared.Persistence.Configurations;
 
-public class AnswerConfiguration : IEntityTypeConfiguration<Answer>
+public class AnswerConfiguration : BaseEntityConfiguration<Answer>
 {
     public void Configure(EntityTypeBuilder<Answer> builder)
     {
+        base.Configure(builder);
         builder.HasKey(a => a.Id);
 
         builder.Property(a => a.AttributeKey)
