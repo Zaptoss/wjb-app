@@ -58,7 +58,12 @@ export function FlowToolbar({ isDirty, onSave }: Props) {
             onChange={(e) => setFlowName(e.target.value)}
             className="rounded-md border border-transparent bg-transparent px-2 py-1 text-sm font-semibold text-gray-800 outline-none hover:border-gray-200 focus:border-gray-300 focus:bg-gray-50"
           />
-          {isDirty && <span className="h-2 w-2 rounded-full bg-amber-400" title="Unsaved changes" />}
+          {isDirty && (
+            <span
+              className="h-3.5 w-3.5 rounded-full bg-amber-400 ring-2 ring-amber-400/35"
+              title="Unsaved changes"
+            />
+          )}
         </div>
         <div className="flex items-center gap-2">
           <button
