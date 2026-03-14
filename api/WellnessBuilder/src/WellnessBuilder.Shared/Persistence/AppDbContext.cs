@@ -20,7 +20,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     // Offers
     public DbSet<Offer> Offers { get; set; }
-    public DbSet<OfferRule> OfferRules { get; set; }
     public DbSet<OfferConditionGroup> OfferConditionGroups { get; set; }
     public DbSet<OfferCondition> OfferConditions { get; set; }
 
