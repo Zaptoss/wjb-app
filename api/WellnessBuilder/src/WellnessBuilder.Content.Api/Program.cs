@@ -1,3 +1,7 @@
+
+using Microsoft.EntityFrameworkCore;
+using WellnessBuilder.Shared.Persistence;
+
 namespace WellnessBuilder.Content.Api;
 
 public class Program
@@ -6,15 +10,21 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        // Add services to the container.
-
+        builder.Services.AddSharedPersistence(
+            builder.Configuration.GetConnectionString("Default") 
+            ?? throw new Exception("Missing connection string"));
+        
         builder.Services.AddControllers();
-        // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
         builder.Services.AddOpenApi();
 
         var app = builder.Build();
 
-        // Configure the HTTP request pipeline.
+        using (var scope = app.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            db.Database.Migrate();
+        }
+        
         if (app.Environment.IsDevelopment())
         {
             app.MapOpenApi();

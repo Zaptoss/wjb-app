@@ -10,4 +10,15 @@
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.2"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Controllers\" />
+      <Folder Include="Requests\" />
+      <Folder Include="Services\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\WellnessBuilder.Shared\WellnessBuilder.Shared.csproj" />
+      <ProjectReference Include="..\WellnessBuilder.Shared\WellnessBuilder.Shared.csproj" />
+    </ItemGroup>
+
 </Project>

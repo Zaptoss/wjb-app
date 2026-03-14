@@ -6,7 +6,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WellnessBuilder.User.Api", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WellnessBuilder.Content.Api", "src\WellnessBuilder.Content.Api\WellnessBuilder.Content.Api.csproj", "{0E0BB624-8900-44EB-9667-BC22DB90FD03}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WellnessBuilder.Shared", "WellnessBuilder.Shared\WellnessBuilder.Shared.csproj", "{4E53D774-CED3-4F75-BF28-884C28BE1D6E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WellnessBuilder.Shared", "src\WellnessBuilder.Shared\WellnessBuilder.Shared.csproj", "{4E53D774-CED3-4F75-BF28-884C28BE1D6E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
