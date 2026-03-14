@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace WellnessBuilder.Shared.Entities;
+﻿namespace WellnessBuilder.Shared.Entities;
 
 public class SessionOffer
 {

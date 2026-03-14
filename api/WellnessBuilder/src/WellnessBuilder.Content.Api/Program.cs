@@ -1,4 +1,3 @@
-
 using Microsoft.EntityFrameworkCore;
 using WellnessBuilder.Shared.Persistence;
 
@@ -11,9 +10,9 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
 
         builder.Services.AddSharedPersistence(
-            builder.Configuration.GetConnectionString("Default") 
+            builder.Configuration.GetConnectionString("LocalhostConnection")
             ?? throw new Exception("Missing connection string"));
-        
+
         builder.Services.AddControllers();
         builder.Services.AddOpenApi();
 
@@ -24,11 +23,8 @@ public class Program
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             db.Database.Migrate();
         }
-        
-        if (app.Environment.IsDevelopment())
-        {
-            app.MapOpenApi();
-        }
+
+        if (app.Environment.IsDevelopment()) app.MapOpenApi();
 
         app.UseHttpsRedirection();
 

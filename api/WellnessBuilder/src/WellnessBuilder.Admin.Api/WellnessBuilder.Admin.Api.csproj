@@ -11,13 +11,22 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Controllers\" />
-      <Folder Include="Requests\" />
-      <Folder Include="Services\" />
+        <Folder Include="Controllers\"/>
+        <Folder Include="Requests\"/>
+        <Folder Include="Services\"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\WellnessBuilder.Shared\WellnessBuilder.Shared.csproj" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.5"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.5">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.1"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\WellnessBuilder.Shared\WellnessBuilder.Shared.csproj"/>
     </ItemGroup>
 
 </Project>
