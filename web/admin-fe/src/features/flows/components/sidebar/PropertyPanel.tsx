@@ -1,0 +1,147 @@
+import { useFlowStore } from '../../store/flowStore';
+import { InfoNodePanel } from './panels/InfoNodePanel';
+import { QuestionNodePanel } from './panels/QuestionNodePanel';
+import { OfferNodePanel } from './panels/OfferNodePanel';
+import { EndNodePanel } from './panels/EndNodePanel';
+import type { NodeData, EdgeData } from '../../types';
+
+export function PropertyPanel() {
+  const selectedNodeId = useFlowStore((s) => s.selectedNodeId);
+  const selectedEdgeId = useFlowStore((s) => s.selectedEdgeId);
+  const nodes = useFlowStore((s) => s.nodes);
+  const edges = useFlowStore((s) => s.edges);
+  const deleteNode = useFlowStore((s) => s.deleteNode);
+  const deleteEdge = useFlowStore((s) => s.deleteEdge);
+  const updateEdgeData = useFlowStore((s) => s.updateEdgeData);
+
+  const selectedNode = nodes.find((n) => n.id === selectedNodeId);
+  const selectedEdge = edges.find((e) => e.id === selectedEdgeId);
+
+  const NODE_TYPE_LABELS: Record<string, string> = {
+    info: 'Info Page',
+    question: 'Question',
+    offer: 'Offer',
+    end: 'End Flow',
+  };
+
+  const NODE_TYPE_COLORS: Record<string, string> = {
+    info: 'text-amber-700 bg-amber-100',
+    question: 'text-blue-700 bg-blue-100',
+    offer: 'text-green-700 bg-green-100',
+    end: 'text-red-700 bg-red-100',
+  };
+
+  if (!selectedNode && !selectedEdge) {
+    return (
+      <div className="flex w-72 flex-shrink-0 flex-col border-l border-gray-100 bg-white">
+        <div className="border-b border-gray-100 px-4 py-3">
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-400">Properties</h2>
+        </div>
+        <div className="flex flex-1 flex-col items-center justify-center gap-2 p-6 text-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+          </div>
+          <p className="text-sm font-medium text-gray-500">No selection</p>
+          <p className="text-xs text-gray-400">Click a node or edge to edit its properties</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (selectedEdge) {
+    const edgeData = (selectedEdge.data as EdgeData) ?? { conditions: [] };
+    return (
+      <div className="flex w-72 flex-shrink-0 flex-col border-l border-gray-100 bg-white">
+        <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
+          <div className="flex items-center gap-2">
+            <span className="rounded bg-indigo-100 px-2 py-0.5 text-xs font-semibold text-indigo-700">Edge</span>
+            <h2 className="text-sm font-semibold text-gray-700">Conditions</h2>
+          </div>
+          <button onClick={() => deleteEdge(selectedEdgeId!)} className="text-xs text-red-500 hover:text-red-700">Delete</button>
+        </div>
+        <div className="flex-1 overflow-y-auto p-4">
+          <div className="flex flex-col gap-3">
+            {edgeData.conditions.map((cond, i) => (
+              <div key={cond.id} className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+                <div className="mb-2 flex items-center justify-between">
+                  <span className="text-xs font-medium text-gray-500">Condition {i + 1}</span>
+                  <button
+                    onClick={() => updateEdgeData(selectedEdgeId!, {
+                      conditions: edgeData.conditions.filter((c) => c.id !== cond.id),
+                    })}
+                    className="text-gray-300 hover:text-red-500"
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                </div>
+                <input
+                  type="text"
+                  value={cond.attribute}
+                  onChange={(e) => updateEdgeData(selectedEdgeId!, {
+                    conditions: edgeData.conditions.map((c) => c.id === cond.id ? { ...c, attribute: e.target.value } : c),
+                  })}
+                  placeholder="attribute (e.g. goal)"
+                  className="mb-1.5 w-full rounded border border-gray-200 bg-white px-2 py-1 text-xs outline-none"
+                />
+                <select
+                  value={cond.operator}
+                  onChange={(e) => updateEdgeData(selectedEdgeId!, {
+                    conditions: edgeData.conditions.map((c) => c.id === cond.id ? { ...c, operator: e.target.value as 'eq' | 'neq' | 'gt' | 'lt' | 'gte' | 'lte' | 'in' | 'nin' | 'contains' } : c),
+                  })}
+                  className="mb-1.5 w-full rounded border border-gray-200 bg-white px-2 py-1 text-xs outline-none"
+                >
+                  {(['eq','neq','gt','lt','gte','lte','in','nin','contains'] as const).map((op) => (
+                    <option key={op} value={op}>{op}</option>
+                  ))}
+                </select>
+                <input
+                  type="text"
+                  value={cond.value}
+                  onChange={(e) => updateEdgeData(selectedEdgeId!, {
+                    conditions: edgeData.conditions.map((c) => c.id === cond.id ? { ...c, value: e.target.value } : c),
+                  })}
+                  placeholder="value (e.g. weight_loss)"
+                  className="w-full rounded border border-gray-200 bg-white px-2 py-1 text-xs outline-none"
+                />
+              </div>
+            ))}
+            <button
+              onClick={() => updateEdgeData(selectedEdgeId!, {
+                conditions: [...edgeData.conditions, { id: crypto.randomUUID(), attribute: '', operator: 'eq', value: '' }],
+              })}
+              className="flex items-center gap-1 text-sm text-indigo-600 hover:text-indigo-800"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Add condition
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const node = selectedNode!;
+  const data = node.data as NodeData;
+
+  return (
+    <div className="flex w-72 flex-shrink-0 flex-col border-l border-gray-100 bg-white">
+      <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
+        <div className="flex items-center gap-2">
+          <span className={`rounded px-2 py-0.5 text-xs font-semibold ${NODE_TYPE_COLORS[node.type ?? 'end']}`}>
+            {NODE_TYPE_LABELS[node.type ?? 'end']}
+          </span>
+        </div>
+        <button onClick={() => deleteNode(selectedNodeId!)} className="text-xs text-red-500 hover:text-red-700">Delete</button>
+      </div>
+      <div className="flex-1 overflow-y-auto p-4">
+        {data.type === 'info' && <InfoNodePanel nodeId={node.id} data={data} />}
+        {data.type === 'question' && <QuestionNodePanel nodeId={node.id} data={data} />}
+        {data.type === 'offer' && <OfferNodePanel nodeId={node.id} data={data} />}
+        {data.type === 'end' && <EndNodePanel />}
+      </div>
+    </div>
+  );
+}
