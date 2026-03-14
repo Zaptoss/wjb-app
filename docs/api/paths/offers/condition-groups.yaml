@@ -1,0 +1,91 @@
+post:
+  tags:
+    - Offers
+  summary: Create a new condition for a specific offer
+  parameters:
+    - in: path
+      name: offerId
+      required: true
+      schema:
+        $ref: '#/components/schemas/Guid'
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/ConditionGroups'
+  responses:
+    '201':
+      description: Condition group created successfully
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ConditionGroups'
+    '400':
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+    '404':
+      description: Offer not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+
+get:
+  tags:
+    - Offers
+  summary: Retrieve a list of condition groups for a specific offer
+  parameters:
+    - in: path
+      name: offerId
+      required: true
+      schema:
+        $ref: '#/components/schemas/Guid'
+  responses:
+    '200':
+      description: List of condition groups retrieved successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConditionGroups'
+    '404':
+      description: Offer not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string

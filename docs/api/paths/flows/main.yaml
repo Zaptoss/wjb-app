@@ -1,0 +1,91 @@
+post:
+  tags:
+    - Flows
+  summary: Create a new flow
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - data
+          properties:
+            data:
+              $ref: '#/components/schemas/Flows'
+  responses:
+    '201':
+      description: Flow created successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                $ref: '#/components/schemas/Flows'
+    '400':
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+
+get:
+  tags:
+    - Flows
+  summary: Retrieve a list of flows
+  parameters:
+    - in: query
+      name: page
+      schema:
+        type: integer
+        default: 1
+      description: Page number for pagination
+    - in: query
+      name: limit
+      schema:
+        type: integer
+        default: 10
+      description: Number of items per page for pagination
+  responses:
+    '200':
+      description: A list of flows retrieved successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Flows'
+              meta:
+                type: object
+                properties:
+                  totalItems:
+                    type: integer
+                  totalPages:
+                    type: integer
+                  currentPage:
+                    type: integer
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string

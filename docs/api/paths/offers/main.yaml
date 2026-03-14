@@ -1,0 +1,109 @@
+get:
+  tags:
+    - Offers
+  summary: Retrieve a specific offer by its ID
+  parameters:
+    - in: path
+      name: offerId
+      required: true
+      schema:
+        $ref: '#/components/schemas/Guid'
+  responses:
+    '200':
+      description: Offer retrieved successfully
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Offer'
+    '404':
+      description: Offer not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+
+delete:
+  tags:
+    - Offers
+  summary: Delete a specific offer by its ID
+  parameters:
+    - in: path
+      name: offerId
+      required: true
+      schema:
+        $ref: '#/components/schemas/Guid'
+  responses:
+    '204':
+      description: Offer deleted successfully
+    '404':
+      description: Offer not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+
+patch:
+  tags:
+    - Offers
+  summary: Update a specific offer by its ID
+  parameters:
+    - in: path
+      name: offerId
+      required: true
+      schema:
+        $ref: '#/components/schemas/Guid'
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/Offer'
+  responses:
+    '200':
+      description: Offer updated successfully
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Offer'
+    '404':
+      description: Offer not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string

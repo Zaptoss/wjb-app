@@ -1,0 +1,130 @@
+get:
+  tags:
+    - Nodes
+  summary: Retrieve a specific node by its ID
+  parameters:
+    - in: path
+      name: nodeId
+      required: true
+      schema:
+        type: string
+        example: "30dd879c-ee2f-11db-8314-0800200c9a66"
+        pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+  responses:
+    '200':
+      description: Nodes retrieved successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Node'
+    '404':
+      description: Flow not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+
+delete:
+  tags:
+    - Nodes
+  summary: Delete a specific node by its ID
+  parameters:
+    - in: path
+      name: nodeId
+      required: true
+      schema:
+        type: string
+        example: "30dd879c-ee2f-11db-8314-0800200c9a66"
+        pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+  responses:
+    '204':
+      description: Nodes deleted successfully
+    '404':
+      description: Flow not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+
+patch:
+  tags:
+    - Nodes
+  summary: Update a specific node by its ID
+  parameters:
+    - in: path
+      name: nodeId
+      required: true
+      schema:
+        type: string
+        example: "30dd879c-ee2f-11db-8314-0800200c9a66"
+        pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/Node'
+  responses:
+    '200':
+      description: Nodes updated successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Node'
+    '404':
+      description: Flow not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string

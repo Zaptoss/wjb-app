@@ -1,0 +1,38 @@
+allOf:
+  - $ref: ./NodesKey.yaml
+  - type: object
+    required:
+      - attributes
+    properties:
+      attributes:
+        type: object
+        required:
+          - title
+          - type
+          - createdAt
+          - updatedAt
+        properties:
+          title:
+            type: string
+          description:
+            type: string
+          type:
+            type: string
+          inputType:
+            type: string
+          attributeKey:
+            type: string
+          createdAt:
+            type: string
+            format: date-time
+            readOnly: true
+          updatedAt:
+            type: string
+            format: date-time
+            readOnly: true
+    relationships:
+    
+      options:
+        type: array
+        items:
+          $ref: ./Options.yaml

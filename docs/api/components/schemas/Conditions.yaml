@@ -1,0 +1,32 @@
+allOf:
+  - $ref: ./ConditionsKey.yaml
+  - type: object
+    required:
+      - attributes
+    properties:
+      attributes:
+        type: object
+        required:
+          - target
+          - operator
+          - attributeKey
+          - value
+        properties:
+          target:
+            type: string
+            enum:
+              - edge
+              - option
+              - offer
+          operator:
+            type: string
+            enum:
+              - equals
+              - notEquals
+              - greaterThan
+              - lessThan
+              - in
+          attributeKey:
+            type: string
+          value:
+            type: string

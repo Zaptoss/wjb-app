@@ -1,0 +1,95 @@
+post:
+  tags:
+    - Offers
+  summary: Create a new offer within a specific flow
+  parameters:
+    - in: path
+      name: flowId
+      required: true
+      schema:
+        type: string
+        example: "30dd879c-ee2f-11db-8314-0800200c9a66"
+        pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/CreateOfferRequest'
+  responses:
+    '201':
+      description: Offer created successfully
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Offer'
+    '400':
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+    '404':
+      description: Flow not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+
+get:
+  tags:
+    - Offers
+  summary: Retrieve a list of offers within a specific flow
+  parameters:
+    - in: path
+      name: flowId
+      required: true
+      schema:
+        type: string
+        example: "30dd879c-ee2f-11db-8314-0800200c9a66"
+        pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+  responses:
+    '200':
+      description: Offers retrieved successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Offer'
+    '404':
+      description: Flow not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string

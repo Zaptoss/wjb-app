@@ -1,0 +1,13 @@
+type: object
+required:
+  - id
+  - type
+properties:
+  id:
+    type: string
+    example: "30dd879c-ee2f-11db-8314-0800200c9a66"
+    pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    readOnly: true
+  type:
+    type: string
+    enum: [ nodes ]

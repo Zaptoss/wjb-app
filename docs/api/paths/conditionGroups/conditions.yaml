@@ -1,0 +1,93 @@
+get:
+  tags:
+    - Conditions
+  summary: Retrieve a list of conditions for a specific condition group
+  parameters:
+    - in: path
+      name: conditionGroupId
+      required: true
+      schema:
+        type: string
+        example: "30dd879c-ee2f-11db-8314-0800200c9a66"
+        pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+  responses:
+    '200':
+      description: List of conditions retrieved successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Conditions'
+    '404':
+      description: Condition group not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+
+post:
+  tags:
+    - Conditions
+  summary: Create a new condition for a specific condition group
+  parameters:
+    - in: path
+      name: conditionGroupId
+      required: true
+      schema:
+        $ref: '#/components/schemas/Guid'
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/Conditions'
+  responses:
+    '201':
+      description: Condition created successfully
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Conditions'
+    '400':
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+    '404':
+      description: Condition group not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string

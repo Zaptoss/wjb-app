@@ -1,304 +1,1962 @@
-openapi: 3.0.3
+openapi: 3.1.0
 info:
-  title: Orders API
+  title: Wellness Journey Builder API
   version: 1.0.0
   description: API for importing and managing delivery orders
 servers:
-  - url: https://api.brainybobs.xyz/
+  - url: https://wjb-api.brainybobs.xyz/
     description: Production server
 security:
   - cookieAuth: []
 paths:
-  /api/login:
+  /api/v1/flows:
     post:
       tags:
-        - Auth
-      summary: Perform authentication
-      description: Obtain the user''s login and password to perform the authentication procedure
+        - Flows
+      summary: Create a new flow
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/loginRequest'
-      security: []
+              type: object
+              required:
+                - data
+              properties:
+                data:
+                  $ref: '#/components/schemas/Flows'
       responses:
-        '200':
-          description: Logged in successfully
-          headers:
-            Set-Cookie:
-              schema:
-                type: string
-                example: TaxAuth=abcde12345; Path=/; samesite=lax; HttpOnly
-        '401':
-          description: Invalid credentials
-          content:
-            text/plain:
-              schema:
-                type: string
-        '500':
-          description: Internal Server Error
-  /api/orders:
-    post:
-      tags:
-        - Orders
-      summary: Create order manually
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateOrderRequest'
-      responses:
-        '200':
-          description: Order created
+        '201':
+          description: Flow created successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Order'
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Flows'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
         '500':
-          description: Internal Server Error
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
     get:
       tags:
-        - Orders
-      summary: Get list of orders
+        - Flows
+      summary: Retrieve a list of flows
       parameters:
-        - name: Page
-          in: query
-          description: Page number from 1
+        - in: query
+          name: page
           schema:
             type: integer
-            minimum: 1
-            example: 1
-        - name: PageSize
-          in: query
-          description: Number of orders per page
+            default: 1
+          description: Page number for pagination
+        - in: query
+          name: limit
           schema:
             type: integer
-            minimum: 1
-            example: 20
-        - name: From
-          in: query
-          description: Data creation (from)
-          schema:
-            type: string
-            format: date-time
-        - name: To
-          in: query
-          description: Data creation (to)
-          schema:
-            type: string
-            format: date-time
-        - name: MinTotal
-          in: query
-          description: Total amount (from)
-          schema:
-            type: number
-        - name: SortBy
-          in: query
-          description: Sort column
-          schema:
-            type: string
-            enum:
-              - timestamp
-              - subtotal
-              - compositeRate
-              - taxAmount
-              - totalAmount
-              - locationValid
-            default: timestamp
-            example: totalAmount
-        - name: SortDir
-          in: query
-          description: Sort direction
-          schema:
-            type: string
-            enum:
-              - asc
-              - desc
-            default: desc
-            example: asc
+            default: 10
+          description: Number of items per page for pagination
       responses:
         '200':
-          description: List of orders
+          description: A list of flows retrieved successfully
           content:
             application/json:
               schema:
                 type: object
-                required:
-                  - items
                 properties:
-                  items:
-                    $ref: '#/components/schemas/Order'
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Flows'
+                  meta:
+                    type: object
+                    properties:
+                      totalItems:
+                        type: integer
+                      totalPages:
+                        type: integer
+                      currentPage:
+                        type: integer
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /api/v1/flows/{flowId}:
+    get:
+      tags:
+        - Flows
+      summary: Retrieve a specific flow by its ID
+      parameters:
+        - in: path
+          name: flowId
+          required: true
+          schema:
+            type: string
+            example: 30dd879c-ee2f-11db-8314-0800200c9a66
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+      responses:
+        '200':
+          description: Flow retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Flow'
+        '404':
+          description: Flow not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+        - Flows
+      summary: Delete a specific flow by its ID
+      parameters:
+        - in: path
+          name: flowId
+          required: true
+          schema:
+            type: string
+            example: 30dd879c-ee2f-11db-8314-0800200c9a66
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+      responses:
         '204':
-          description: No content — no matching data
-        '500':
-          description: Internal Server Error
-  /api/orders/import:
-    post:
+          description: Flow deleted successfully
+        '404':
+          description: Flow not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
       tags:
-        - Import
-      summary: Import orders from CSV file
-      description: Upload CSV file with columns id, longitude, latitude, timestamp, subtotal
+        - Flows
+      summary: Update a specific flow by its ID
+      parameters:
+        - in: path
+          name: flowId
+          required: true
+          schema:
+            type: string
+            example: 30dd879c-ee2f-11db-8314-0800200c9a66
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
       requestBody:
         required: true
         content:
-          multipart/form-data:
+          application/json:
             schema:
-              type: object
-              required:
-                - file
-              properties:
-                file:
-                  type: string
-                  format: binary
-                  description: CSV file to upload
-            encoding:
-              file:
-                contentType: text/csv
+              $ref: '#/components/schemas/Flow'
       responses:
         '200':
-          description: Import successful
+          description: Flow updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Flow'
+        '404':
+          description: Flow not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/v1/flows/{flowId}/nodes:
+    post:
+      tags:
+        - Nodes
+      summary: Create a new node within a specific flow
+      parameters:
+        - in: path
+          name: flowId
+          required: true
+          schema:
+            type: string
+            example: 30dd879c-ee2f-11db-8314-0800200c9a66
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateNodeRequest'
+      responses:
+        '201':
+          description: Node created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Node'
+        '400':
+          description: Bad request
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  imported:
-                    type: integer
-        '400':
-          description: CSV format error
-          content:
-            text/plain:
-              schema:
-                type: string
-        '500':
-          description: Internal Server Error
-  /api/taxes/import:
-    post:
-      tags:
-        - Taxes
-      summary: Import Sales Taxes from CSV file
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              required:
-                - file
-              properties:
-                file:
-                  type: string
-                  format: binary
-                  description: CSV file to upload
-            encoding:
-              file:
-                contentType: text/csv
-      responses:
-        '200':
-          description: Import successful
+                  error:
+                    type: string
+        '404':
+          description: Flow not found
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  imported:
-                    type: integer
-        '400':
-          description: CSV format error
-          content:
-            text/plain:
-              schema:
-                type: string
+                  error:
+                    type: string
         '500':
-          description: Internal Server Error
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+    get:
+      tags:
+        - Nodes
+      summary: Retrieve a list of nodes within a specific flow
+      parameters:
+        - in: path
+          name: flowId
+          required: true
+          schema:
+            type: string
+            example: 30dd879c-ee2f-11db-8314-0800200c9a66
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+      responses:
+        '200':
+          description: Nodes retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Node'
+        '404':
+          description: Flow not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /api/v1/flows/{flowId}/edges:
+    post:
+      tags:
+        - Flows
+      summary: Create a new node within a specific flow
+      parameters:
+        - in: path
+          name: flowId
+          required: true
+          schema:
+            type: string
+            example: 30dd879c-ee2f-11db-8314-0800200c9a66
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateNodeRequest'
+      responses:
+        '201':
+          description: Node created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Node'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '404':
+          description: Flow not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+    get:
+      tags:
+        - Flows
+      summary: Retrieve a list of nodes within a specific flow
+      parameters:
+        - in: path
+          name: flowId
+          required: true
+          schema:
+            type: string
+            example: 30dd879c-ee2f-11db-8314-0800200c9a66
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+      responses:
+        '200':
+          description: Nodes retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Node'
+        '404':
+          description: Flow not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /api/v1/flows/{flowId}/offers:
+    post:
+      tags:
+        - Offers
+      summary: Create a new offer within a specific flow
+      parameters:
+        - in: path
+          name: flowId
+          required: true
+          schema:
+            type: string
+            example: 30dd879c-ee2f-11db-8314-0800200c9a66
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOfferRequest'
+      responses:
+        '201':
+          description: Offer created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Offer'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '404':
+          description: Flow not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+    get:
+      tags:
+        - Offers
+      summary: Retrieve a list of offers within a specific flow
+      parameters:
+        - in: path
+          name: flowId
+          required: true
+          schema:
+            type: string
+            example: 30dd879c-ee2f-11db-8314-0800200c9a66
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+      responses:
+        '200':
+          description: Offers retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Offer'
+        '404':
+          description: Flow not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /api/v1/nodes/{nodeId}:
+    get:
+      tags:
+        - Nodes
+      summary: Retrieve a specific node by its ID
+      parameters:
+        - in: path
+          name: nodeId
+          required: true
+          schema:
+            type: string
+            example: 30dd879c-ee2f-11db-8314-0800200c9a66
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+      responses:
+        '200':
+          description: Nodes retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Node'
+        '404':
+          description: Flow not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+    delete:
+      tags:
+        - Nodes
+      summary: Delete a specific node by its ID
+      parameters:
+        - in: path
+          name: nodeId
+          required: true
+          schema:
+            type: string
+            example: 30dd879c-ee2f-11db-8314-0800200c9a66
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+      responses:
+        '204':
+          description: Nodes deleted successfully
+        '404':
+          description: Flow not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+    patch:
+      tags:
+        - Nodes
+      summary: Update a specific node by its ID
+      parameters:
+        - in: path
+          name: nodeId
+          required: true
+          schema:
+            type: string
+            example: 30dd879c-ee2f-11db-8314-0800200c9a66
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Node'
+      responses:
+        '200':
+          description: Nodes updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Node'
+        '404':
+          description: Flow not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /api/v1/nodes/{nodeId}/options:
+    post:
+      tags:
+        - Options
+      summary: Create a new option for a specific node
+      parameters:
+        - in: path
+          name: nodeId
+          required: true
+          schema:
+            $ref: '#/components/schemas/Guid'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Options'
+      responses:
+        '201':
+          description: Option created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Options'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '404':
+          description: Node not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+    get:
+      tags:
+        - Options
+      summary: Retrieve a list of options for a specific node
+      parameters:
+        - in: path
+          name: nodeId
+          required: true
+          schema:
+            $ref: '#/components/schemas/Guid'
+      responses:
+        '200':
+          description: Options retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Options'
+        '404':
+          description: Node not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /api/v1/options/{optionId}:
+    get:
+      tags:
+        - Options
+      summary: Retrieve a specific option by its ID
+      parameters:
+        - in: path
+          name: optionId
+          required: true
+          schema:
+            $ref: '#/components/schemas/Guid'
+      responses:
+        '200':
+          description: Option retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Options'
+        '404':
+          description: Option not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+    delete:
+      tags:
+        - Options
+      summary: Delete a specific option by its ID
+      parameters:
+        - in: path
+          name: optionId
+          required: true
+          schema:
+            $ref: '#/components/schemas/Guid'
+      responses:
+        '204':
+          description: Option deleted successfully
+        '404':
+          description: Option not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+    patch:
+      tags:
+        - Options
+      summary: Update a specific option by its ID
+      parameters:
+        - in: path
+          name: optionId
+          required: true
+          schema:
+            $ref: '#/components/schemas/Guid'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Options'
+      responses:
+        '200':
+          description: Option updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Options'
+        '404':
+          description: Option not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /api/v1/options/{optionId}/condition-groups:
+    post:
+      tags:
+        - ConditionGroups
+      summary: Create a new condition group for a specific option
+      parameters:
+        - in: path
+          name: optionId
+          required: true
+          schema:
+            $ref: '#/components/schemas/Guid'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConditionGroups'
+      responses:
+        '201':
+          description: Condition group created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConditionGroups'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '404':
+          description: Option not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+    get:
+      tags:
+        - ConditionGroups
+      summary: Retrieve a list of condition groups for a specific option
+      parameters:
+        - in: path
+          name: optionId
+          required: true
+          schema:
+            $ref: '#/components/schemas/Guid'
+      responses:
+        '200':
+          description: List of condition groups retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ConditionGroups'
+        '404':
+          description: Option not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /api/v1/edges/{edgeId}:
+    get:
+      tags:
+        - Edges
+      summary: Retrieve a list of edges within a specific flow
+      parameters:
+        - in: path
+          name: edgeId
+          required: true
+          schema:
+            type: string
+            example: 30dd879c-ee2f-11db-8314-0800200c9a66
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+      responses:
+        '200':
+          description: Edges retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Edge'
+        '404':
+          description: Flow not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+    delete:
+      tags:
+        - Edges
+      summary: Delete edge
+      parameters:
+        - in: path
+          name: edgeId
+          required: true
+          schema:
+            type: string
+            example: 30dd879c-ee2f-11db-8314-0800200c9a66
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+      responses:
+        '204':
+          description: Edge deleted successfully
+        '404':
+          description: Edge not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+    patch:
+      tags:
+        - Edges
+      summary: Update edge attributes
+      parameters:
+        - in: path
+          name: edgeId
+          required: true
+          schema:
+            type: string
+            example: 30dd879c-ee2f-11db-8314-0800200c9a66
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                attributes:
+                  type: object
+      responses:
+        '200':
+          description: Edge updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Edge'
+        '404':
+          description: Edge not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /api/v1/edges/{edgeId}/condition-groups:
+    post:
+      tags:
+        - ConditionGroups
+      summary: Create a new condition group for a specific edge
+      parameters:
+        - in: path
+          name: edgeId
+          required: true
+          schema:
+            type: string
+            example: 30dd879c-ee2f-11db-8314-0800200c9a66
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateConditionGroupRequest'
+      responses:
+        '201':
+          description: Condition group created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConditionGroup'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+    get:
+      tags:
+        - ConditionGroups
+      summary: Retrieve a list of condition groups for a specific edge
+      parameters:
+        - in: path
+          name: edgeId
+          required: true
+          schema:
+            type: string
+            example: 30dd879c-ee2f-11db-8314-0800200c9a66
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+      responses:
+        '200':
+          description: List of condition groups retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ConditionGroup'
+        '404':
+          description: Edge not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /api/v1/offers/{offerId}:
+    get:
+      tags:
+        - Offers
+      summary: Retrieve a specific offer by its ID
+      parameters:
+        - in: path
+          name: offerId
+          required: true
+          schema:
+            $ref: '#/components/schemas/Guid'
+      responses:
+        '200':
+          description: Offer retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Offer'
+        '404':
+          description: Offer not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+    delete:
+      tags:
+        - Offers
+      summary: Delete a specific offer by its ID
+      parameters:
+        - in: path
+          name: offerId
+          required: true
+          schema:
+            $ref: '#/components/schemas/Guid'
+      responses:
+        '204':
+          description: Offer deleted successfully
+        '404':
+          description: Offer not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+    patch:
+      tags:
+        - Offers
+      summary: Update a specific offer by its ID
+      parameters:
+        - in: path
+          name: offerId
+          required: true
+          schema:
+            $ref: '#/components/schemas/Guid'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Offer'
+      responses:
+        '200':
+          description: Offer updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Offer'
+        '404':
+          description: Offer not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /api/v1/offers/{offerId}/condition-groups:
+    post:
+      tags:
+        - Offers
+      summary: Create a new condition for a specific offer
+      parameters:
+        - in: path
+          name: offerId
+          required: true
+          schema:
+            $ref: '#/components/schemas/Guid'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConditionGroups'
+      responses:
+        '201':
+          description: Condition group created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConditionGroups'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '404':
+          description: Offer not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+    get:
+      tags:
+        - Offers
+      summary: Retrieve a list of condition groups for a specific offer
+      parameters:
+        - in: path
+          name: offerId
+          required: true
+          schema:
+            $ref: '#/components/schemas/Guid'
+      responses:
+        '200':
+          description: List of condition groups retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ConditionGroups'
+        '404':
+          description: Offer not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /api/v1/condition-groups/{conditionGroupId}:
+    post:
+      tags:
+        - Conditions
+      summary: Create a new condition for a specific edge
+      parameters:
+        - in: path
+          name: conditionGroupId
+          required: true
+          schema:
+            type: string
+            example: 30dd879c-ee2f-11db-8314-0800200c9a66
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateConditionRequest'
+      responses:
+        '201':
+          description: Condition created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Condition'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '404':
+          description: Condition group not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+    get:
+      tags:
+        - Conditions
+      summary: Retrieve a list of conditions for a specific condition group
+      parameters:
+        - in: path
+          name: conditionGroupId
+          required: true
+          schema:
+            type: string
+            example: 30dd879c-ee2f-11db-8314-0800200c9a66
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+      responses:
+        '200':
+          description: List of conditions retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Condition'
+        '404':
+          description: Condition group not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /api/v1/condition-groups/{conditionGroupId}/conditions:
+    get:
+      tags:
+        - Conditions
+      summary: Retrieve a list of conditions for a specific condition group
+      parameters:
+        - in: path
+          name: conditionGroupId
+          required: true
+          schema:
+            type: string
+            example: 30dd879c-ee2f-11db-8314-0800200c9a66
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+      responses:
+        '200':
+          description: List of conditions retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Conditions'
+        '404':
+          description: Condition group not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+    post:
+      tags:
+        - Conditions
+      summary: Create a new condition for a specific condition group
+      parameters:
+        - in: path
+          name: conditionGroupId
+          required: true
+          schema:
+            $ref: '#/components/schemas/Guid'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Conditions'
+      responses:
+        '201':
+          description: Condition created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Conditions'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '404':
+          description: Condition group not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /api/v1/conditions/{conditionId}:
+    get:
+      tags:
+        - Conditions
+      summary: Retrieve a specific condition by its ID
+      parameters:
+        - in: path
+          name: conditionId
+          required: true
+          schema:
+            $ref: '#/components/schemas/Guid'
+      responses:
+        '200':
+          description: Condition retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Conditions'
+        '404':
+          description: Condition not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+    delete:
+      tags:
+        - Conditions
+      summary: Delete a specific condition by its ID
+      parameters:
+        - in: path
+          name: conditionId
+          required: true
+          schema:
+            $ref: '#/components/schemas/Guid'
+      responses:
+        '204':
+          description: Condition deleted successfully
+        '404':
+          description: Condition not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+    patch:
+      tags:
+        - Conditions
+      summary: Update a specific condition by its ID
+      parameters:
+        - in: path
+          name: conditionId
+          required: true
+          schema:
+            $ref: '#/components/schemas/Guid'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Conditions'
+      responses:
+        '200':
+          description: Condition updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Conditions'
+        '404':
+          description: Condition not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
 components:
   schemas:
-    CreateOrderRequest:
-      type: object
-      required:
-        - longitude
-        - latitude
-        - subTotal
-        - orderData
-      properties:
-        longitude:
-          type: number
-          format: double
-          example: -122.4194
-        latitude:
-          type: number
-          format: double
-          example: 37.7749
-        subTotal:
-          type: number
-          format: double
-          example: 100.5
-        orderData:
-          type: string
-          format: date-time
-          example: '2026-02-28T17:29:00.000Z'
-    Order:
+    FlowsKey:
       type: object
       required:
         - id
-        - compositeTaxRate
-        - taxRateAmount
-        - totalAmount
-        - subTotal
-        - longitude
-        - latitude
-        - isLocationValid
-        - orderDate
-        - stateRate
-        - stateName
-        - countyRate
-        - countyName
-        - cityRate
-        - specialRate
+        - type
       properties:
         id:
-          type: number
-        compositeTaxRate:
-          type: number
-        taxRateAmount:
-          type: number
-        totalAmount:
-          type: number
-        subTotal:
-          type: number
-        longitude:
-          type: number
-        latitude:
-          type: number
-        isLocationValid:
-          type: boolean
-        orderDate:
           type: string
-          format: data-time
-        stateRate:
-          type: number
-        stateName:
+          example: 30dd879c-ee2f-11db-8314-0800200c9a66
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+          readOnly: true
+        type:
           type: string
-        countyRate:
-          type: number
-        cityName:
-          type: string
-        specialRate:
-          type: number
-        special:
-          type: string
-    loginRequest:
+          enum:
+            - flows
+    Flows:
+      allOf:
+        - $ref: '#/components/schemas/FlowsKey'
+        - type: object
+          required:
+            - attributes
+          properties:
+            attributes:
+              type: object
+              required:
+                - title
+                - description
+                - isActive
+                - createdAt
+                - updatedAt
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                isActive:
+                  type: boolean
+                createdAt:
+                  type: string
+                  format: date-time
+                  readOnly: true
+                updatedAt:
+                  type: string
+                  format: date-time
+                  readOnly: true
+          relationships:
+            nodes:
+              type: array
+              items:
+                $ref: ./Nodes.yaml
+            conditions:
+              type: array
+              items:
+                $ref: ./Conditions.yaml
+            offers:
+              type: array
+              items:
+                $ref: ./Offers.yaml
+            nodeOptions:
+              type: array
+              items:
+                $ref: ./Options.yaml
+    Flow:
+      $ref: '#/components/schemas/Flows'
+    NodesKey:
       type: object
       required:
-        - username
-        - password
+        - id
+        - type
       properties:
-        username:
+        id:
           type: string
-        password:
+          example: 30dd879c-ee2f-11db-8314-0800200c9a66
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+          readOnly: true
+        type:
           type: string
+          enum:
+            - nodes
+    Nodes:
+      allOf:
+        - $ref: '#/components/schemas/NodesKey'
+        - type: object
+          required:
+            - attributes
+          properties:
+            attributes:
+              type: object
+              required:
+                - title
+                - type
+                - createdAt
+                - updatedAt
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                type:
+                  type: string
+                inputType:
+                  type: string
+                attributeKey:
+                  type: string
+                createdAt:
+                  type: string
+                  format: date-time
+                  readOnly: true
+                updatedAt:
+                  type: string
+                  format: date-time
+                  readOnly: true
+          relationships:
+            options:
+              type: array
+              items:
+                $ref: ./Options.yaml
+    Node:
+      $ref: '#/components/schemas/Nodes'
+    CreateNodeRequest:
+      $ref: '#/components/schemas/Nodes'
+    EdgesKey:
+      type: object
+      required:
+        - id
+        - type
+      properties:
+        id:
+          type: string
+          example: 30dd879c-ee2f-11db-8314-0800200c9a66
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+          readOnly: true
+        type:
+          type: string
+          enum:
+            - edges
+    Edges:
+      allOf:
+        - $ref: '#/components/schemas/EdgesKey'
+        - type: object
+          required:
+            - attributes
+          properties:
+            attributes:
+              type: object
+              required:
+                - priority
+                - from
+                - to
+              properties:
+                priority:
+                  type: integer
+                from:
+                  type: string
+                to:
+                  type: string
+            relationships:
+              type: object
+              required:
+                - conditionGroups
+              properties:
+                conditionGroups:
+                  type: object
+                  required:
+                    - data
+                  properties:
+                    data:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/ConditionGroupsKey'
+    Edge:
+      $ref: '#/components/schemas/Edges'
+    ConditionGroupsKey:
+      type: object
+      required:
+        - id
+        - type
+      properties:
+        id:
+          type: string
+          example: 30dd879c-ee2f-11db-8314-0800200c9a66
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+          readOnly: true
+        type:
+          type: string
+          enum:
+            - condition-groups
+    ConditionGroups:
+      allOf:
+        - $ref: '#/components/schemas/ConditionGroupsKey'
+        - type: object
+          required:
+            - attributes
+          properties:
+            attributes:
+              type: object
+              required:
+                - target
+              properties:
+                target:
+                  type: string
+                  enum:
+                    - edge
+                    - option
+                    - offer
+            relationships:
+              type: object
+              required:
+                - conditions
+              properties:
+                conditions:
+                  type: object
+                  required:
+                    - data
+                  properties:
+                    data:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/ConditionsKey'
+    ConditionGroup:
+      $ref: '#/components/schemas/ConditionGroups'
+    CreateConditionGroupRequest:
+      $ref: '#/components/schemas/ConditionGroups'
+    ConditionsKey:
+      type: object
+      required:
+        - id
+        - type
+      properties:
+        id:
+          type: string
+          example: 30dd879c-ee2f-11db-8314-0800200c9a66
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+          readOnly: true
+        type:
+          type: string
+          enum:
+            - conditions
+    Conditions:
+      allOf:
+        - $ref: '#/components/schemas/ConditionsKey'
+        - type: object
+          required:
+            - attributes
+          properties:
+            attributes:
+              type: object
+              required:
+                - target
+                - operator
+                - attributeKey
+                - value
+              properties:
+                target:
+                  type: string
+                  enum:
+                    - edge
+                    - option
+                    - offer
+                operator:
+                  type: string
+                  enum:
+                    - equals
+                    - notEquals
+                    - greaterThan
+                    - lessThan
+                    - in
+                attributeKey:
+                  type: string
+                value:
+                  type: string
+    Condition:
+      $ref: '#/components/schemas/Conditions'
+    CreateConditionRequest:
+      $ref: '#/components/schemas/Conditions'
+    OffersKey:
+      type: object
+      required:
+        - id
+        - type
+      properties:
+        id:
+          type: string
+          example: 30dd879c-ee2f-11db-8314-0800200c9a66
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+          readOnly: true
+        type:
+          type: string
+          enum:
+            - offers
+    Offers:
+      allOf:
+        - $ref: '#/components/schemas/OffersKey'
+        - type: object
+          required:
+            - attributes
+          properties:
+            attributes:
+              type: object
+              required:
+                - name
+                - description
+                - createdAt
+                - updatedAt
+                - isActive
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                createdAt:
+                  type: string
+                  format: date-time
+                  readOnly: true
+                updatedAt:
+                  type: string
+                  format: date-time
+                  readOnly: true
+                isActive:
+                  type: boolean
+    Offer:
+      $ref: '#/components/schemas/Offers'
+    CreateOfferRequest:
+      $ref: '#/components/schemas/Offers'
+    OptionsKey:
+      type: object
+      required:
+        - id
+        - type
+      properties:
+        id:
+          type: string
+          example: 30dd879c-ee2f-11db-8314-0800200c9a66
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+          readOnly: true
+        type:
+          type: string
+          enum:
+            - options
+    Options:
+      allOf:
+        - $ref: '#/components/schemas/OptionsKey'
+        - type: object
+          required:
+            - attributes
+          properties:
+            attributes:
+              type: object
+              required:
+                - label
+                - value
+                - displayOrder
+                - createdAt
+                - updatedAt
+              properties:
+                label:
+                  type: string
+                value:
+                  type: string
+                displayOrder:
+                  type: integer
+                createdAt:
+                  type: string
+                  format: date-time
+                  readOnly: true
+                updatedAt:
+                  type: string
+                  format: date-time
+                  readOnly: true
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+    Guid:
+      type: string
+      example: 30dd879c-ee2f-11db-8314-0800200c9a66
+      pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
   securitySchemes:
     cookieAuth:
       type: apiKey

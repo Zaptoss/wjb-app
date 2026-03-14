@@ -1,0 +1,46 @@
+allOf:
+  - $ref: ./FlowsKey.yaml
+  - type: object
+    required:
+      - attributes
+    properties:
+      attributes:
+        type: object
+        required:
+          - title
+          - description
+          - isActive
+          - createdAt
+          - updatedAt
+        properties:
+          title:
+            type: string
+          description:
+            type: string
+          isActive:
+            type: boolean
+          createdAt:
+            type: string
+            format: date-time
+            readOnly: true
+          updatedAt:
+            type: string
+            format: date-time
+            readOnly: true
+    relationships:
+      nodes:
+        type: array
+        items:
+          $ref: ./Nodes.yaml
+      conditions:
+        type: array
+        items:
+          $ref: ./Conditions.yaml
+      offers:
+        type: array
+        items:
+          $ref: ./Offers.yaml
+      nodeOptions:
+        type: array
+        items:
+          $ref: ./Options.yaml

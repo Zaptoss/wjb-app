@@ -1,0 +1,33 @@
+allOf:
+  - $ref: ./EdgesKey.yaml
+  - type: object
+    required:
+      - attributes
+    properties:
+      attributes:
+        type: object
+        required:
+          - priority
+          - from
+          - to
+        properties:
+          priority:
+            type: integer
+          from:
+            type: string
+          to:
+            type: string
+      relationships:
+        type: object
+        required:
+          - conditionGroups
+        properties:
+          conditionGroups:
+            type: object
+            required:
+              - data
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: ./ConditionGroupsKey.yaml

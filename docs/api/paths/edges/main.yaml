@@ -1,0 +1,124 @@
+get:
+  tags:
+    - Edges
+  summary: Retrieve a list of edges within a specific flow
+  parameters:
+    - in: path
+      name: edgeId
+      required: true
+      schema:
+        type: string
+        example: "30dd879c-ee2f-11db-8314-0800200c9a66"
+        pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+  responses:
+    '200':
+      description: Edges retrieved successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                $ref: '#/components/schemas/Edge'
+    '404':
+      description: Flow not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+
+delete:
+  tags:
+    - Edges
+  summary: Delete edge
+  parameters:
+    - in: path
+      name: edgeId
+      required: true
+      schema:
+        type: string
+        example: "30dd879c-ee2f-11db-8314-0800200c9a66"
+        pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+  responses:
+    '204':
+      description: Edge deleted successfully
+    '404':
+      description: Edge not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+
+patch:
+  tags:
+    - Edges
+  summary: Update edge attributes
+  parameters:
+    - in: path
+      name: edgeId
+      required: true
+      schema:
+        type: string
+        example: "30dd879c-ee2f-11db-8314-0800200c9a66"
+        pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            attributes:
+              type: object
+  responses:
+    '200':
+      description: Edge updated successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                $ref: '#/components/schemas/Edge'
+    '404':
+      description: Edge not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string

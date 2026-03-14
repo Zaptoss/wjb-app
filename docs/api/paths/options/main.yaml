@@ -1,0 +1,110 @@
+get:
+  tags:
+    - Options
+  summary: Retrieve a specific option by its ID
+  parameters:
+    - in: path
+      name: optionId
+      required: true
+      schema:
+        $ref: '#/components/schemas/Guid'
+  responses:
+    '200':
+      description: Option retrieved successfully
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Options'
+    '404':
+      description: Option not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+
+delete:
+  tags:
+    - Options
+  summary: Delete a specific option by its ID
+  parameters:
+    - in: path
+      name: optionId
+      required: true
+      schema:
+        $ref: '#/components/schemas/Guid'
+  responses:
+    '204':
+      description: Option deleted successfully
+    '404':
+      description: Option not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+
+patch:
+  tags:
+    - Options
+  summary: Update a specific option by its ID
+  parameters:
+    - in: path
+      name: optionId
+      required: true
+      schema:
+        $ref: '#/components/schemas/Guid'
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/Options'
+  responses:
+    '200':
+      description: Option updated successfully
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Options'
+    '404':
+      description: Option not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+

@@ -1,0 +1,31 @@
+allOf:
+  - $ref: ./ConditionGroupsKey.yaml
+  - type: object
+    required:
+      - attributes
+    properties:
+      attributes:
+        type: object
+        required:
+          - target
+        properties:
+          target:
+            type: string
+            enum:
+              - edge
+              - option
+              - offer
+      relationships:
+        type: object
+        required:
+          - conditions
+        properties:
+          conditions:
+            type: object
+            required:
+              - data
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: ./ConditionsKey.yaml

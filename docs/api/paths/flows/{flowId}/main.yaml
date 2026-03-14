@@ -1,0 +1,79 @@
+get:
+  tags:
+    - Flows
+  summary: Retrieve a specific flow by its ID
+  parameters:
+    - in: path
+      name: flowId
+      required: true
+      schema:
+        type: string
+        example: "30dd879c-ee2f-11db-8314-0800200c9a66"
+        pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+  responses:
+    '200':
+      description: Flow retrieved successfully
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Flow'
+    '404':
+      description: Flow not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+delete:
+  tags:
+    - Flows
+  summary: Delete a specific flow by its ID
+  parameters:
+    - in: path
+      name: flowId
+      required: true
+      schema:
+        type: string
+        example: "30dd879c-ee2f-11db-8314-0800200c9a66"
+        pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+  responses:
+    '204':
+      description: Flow deleted successfully
+    '404':
+      description: Flow not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+patch:
+  tags:
+    - Flows
+  summary: Update a specific flow by its ID
+  parameters:
+    - in: path
+      name: flowId
+      required: true
+      schema:
+        type: string
+        example: "30dd879c-ee2f-11db-8314-0800200c9a66"
+        pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/Flow'
+  responses:
+    '200':
+      description: Flow updated successfully
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Flow'
+    '404':
+      description: Flow not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'

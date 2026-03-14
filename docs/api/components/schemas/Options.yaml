@@ -1,0 +1,29 @@
+allOf:
+  - $ref: ./OptionsKey.yaml
+  - type: object
+    required:
+      - attributes
+    properties:
+      attributes:
+        type: object
+        required:
+          - label
+          - value
+          - displayOrder
+          - createdAt
+          - updatedAt
+        properties:
+          label:
+            type: string
+          value:
+            type: string
+          displayOrder:
+            type: integer
+          createdAt:
+            type: string
+            format: date-time
+            readOnly: true
+          updatedAt:
+            type: string
+            format: date-time
+            readOnly: true

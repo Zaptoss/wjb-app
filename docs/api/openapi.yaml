@@ -1,34 +1,113 @@
-openapi: 3.0.3
+openapi: 3.1.0
 info:
-  title: Orders API
+  title: Wellness Journey Builder API
   version: 1.0.0
   description: API for importing and managing delivery orders
 
 servers:
-  - url: https://api.brainybobs.xyz/
+  - url: https://wjb-api.brainybobs.xyz/
     description: Production server
 
 paths:
-  /api/login:
-    $ref: ./paths/auth/login.yaml
+  /api/v1/flows:
+    $ref: ./paths/flows/main.yaml
+  /api/v1/flows/{flowId}:
+    $ref: ./paths/flows/{flowId}/main.yaml
+  /api/v1/flows/{flowId}/nodes:
+    $ref: ./paths/flows/{flowId}/nodes.yaml
+  /api/v1/flows/{flowId}/edges:
+    $ref: ./paths/flows/{flowId}/edges.yaml
+  /api/v1/flows/{flowId}/offers:
+    $ref: ./paths/flows/{flowId}/offers.yaml
+  
+  /api/v1/nodes/{nodeId}:
+    $ref: ./paths/nodes/main.yaml
+  /api/v1/nodes/{nodeId}/options:
+    $ref: ./paths/nodes/options.yaml
 
-  /api/orders:
-    $ref: ./paths/orders/list.yaml
-  /api/orders/import:
-    $ref: ./paths/orders/import.yaml
+  /api/v1/options/{optionId}:
+    $ref: ./paths/options/main.yaml
+  /api/v1/options/{optionId}/condition-groups:
+    $ref: ./paths/options/condition-groups.yaml
 
-  /api/taxes/import:
-    $ref: ./paths/taxes/import.yaml
+  /api/v1/edges/{edgeId}:
+    $ref: ./paths/edges/main.yaml
+  /api/v1/edges/{edgeId}/condition-groups:
+    $ref: ./paths/edges/condition-groups.yaml
+
+  /api/v1/offers/{offerId}:
+    $ref: ./paths/offers/main.yaml
+  /api/v1/offers/{offerId}/condition-groups:
+    $ref: ./paths/offers/condition-groups.yaml
+
+  /api/v1/condition-groups/{conditionGroupId}:
+    $ref: ./paths/conditionGroups/main.yaml
+  /api/v1/condition-groups/{conditionGroupId}/conditions:
+    $ref: ./paths/conditionGroups/conditions.yaml
+
+  /api/v1/conditions/{conditionId}:
+    $ref: ./paths/conditions.yaml
 
 components:
   schemas:
-    CreateOrderRequest:
-      $ref: ./components/schemas/CreateOrderRequest.yaml
-    Order:
-      $ref: ./components/schemas/Order.yaml
-    loginRequest:
-      $ref: ./components/schemas/loginRequest.yaml
-
+    FlowsKey:
+      $ref: ./components/schemas/FlowsKey.yaml
+    Flows:
+      $ref: ./components/schemas/Flows.yaml
+    Flow:
+      $ref: ./components/schemas/Flows.yaml
+    NodesKey:
+      $ref: ./components/schemas/NodesKey.yaml
+    Nodes:
+      $ref: ./components/schemas/Nodes.yaml
+    Node:
+      $ref: ./components/schemas/Nodes.yaml
+    CreateNodeRequest:
+      $ref: ./components/schemas/Nodes.yaml
+    EdgesKey:
+      $ref: ./components/schemas/EdgesKey.yaml
+    Edges:
+      $ref: ./components/schemas/Edges.yaml
+    Edge:
+      $ref: ./components/schemas/Edges.yaml
+    ConditionGroupsKey:
+      $ref: ./components/schemas/ConditionGroupsKey.yaml
+    ConditionGroups:
+      $ref: ./components/schemas/ConditionGroups.yaml
+    ConditionGroup:
+      $ref: ./components/schemas/ConditionGroups.yaml
+    CreateConditionGroupRequest:
+      $ref: ./components/schemas/ConditionGroups.yaml
+    ConditionsKey:
+      $ref: ./components/schemas/ConditionsKey.yaml
+    Conditions:
+      $ref: ./components/schemas/Conditions.yaml
+    Condition:
+      $ref: ./components/schemas/Conditions.yaml
+    CreateConditionRequest:
+      $ref: ./components/schemas/Conditions.yaml
+    OffersKey:
+      $ref: ./components/schemas/OffersKey.yaml
+    Offers:
+      $ref: ./components/schemas/Offers.yaml
+    Offer:
+      $ref: ./components/schemas/Offers.yaml
+    CreateOfferRequest:
+      $ref: ./components/schemas/Offers.yaml
+    OptionsKey:
+      $ref: ./components/schemas/OptionsKey.yaml
+    Options:
+      $ref: ./components/schemas/Options.yaml
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+    Guid:
+      type: string
+      example: "30dd879c-ee2f-11db-8314-0800200c9a66"
+      pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    
   securitySchemes:
     cookieAuth:
       $ref: ./components/securitySchemes/cookieAuth.yaml

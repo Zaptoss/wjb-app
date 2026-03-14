@@ -1,0 +1,91 @@
+post:
+  tags:
+    - Options
+  summary: Create a new option for a specific node
+  parameters:
+    - in: path
+      name: nodeId
+      required: true
+      schema:
+        $ref: '#/components/schemas/Guid'
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/Options'
+  responses:
+    '201':
+      description: Option created successfully
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Options'
+    '400':
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+    '404':
+      description: Node not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+
+get:
+  tags:
+    - Options
+  summary: Retrieve a list of options for a specific node
+  parameters:
+    - in: path
+      name: nodeId
+      required: true
+      schema:
+        $ref: '#/components/schemas/Guid'
+  responses:
+    '200':
+      description: Options retrieved successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Options'
+    '404':
+      description: Node not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string

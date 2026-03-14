@@ -1,0 +1,109 @@
+get:
+  tags:
+    - Conditions
+  summary: Retrieve a specific condition by its ID
+  parameters:
+    - in: path
+      name: conditionId
+      required: true
+      schema:
+        $ref: '#/components/schemas/Guid'
+  responses:
+    '200':
+      description: Condition retrieved successfully
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Conditions'
+    '404':
+      description: Condition not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+
+delete:
+  tags:
+    - Conditions
+  summary: Delete a specific condition by its ID
+  parameters:
+    - in: path
+      name: conditionId
+      required: true
+      schema:
+        $ref: '#/components/schemas/Guid'
+  responses:
+    '204':
+      description: Condition deleted successfully
+    '404':
+      description: Condition not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+
+patch:
+  tags:
+    - Conditions
+  summary: Update a specific condition by its ID
+  parameters:
+    - in: path
+      name: conditionId
+      required: true
+      schema:
+        $ref: '#/components/schemas/Guid'
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/Conditions'
+  responses:
+    '200':
+      description: Condition updated successfully
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Conditions'
+    '404':
+      description: Condition not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
