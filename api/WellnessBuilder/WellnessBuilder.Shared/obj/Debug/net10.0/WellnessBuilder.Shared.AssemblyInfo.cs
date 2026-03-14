@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("WellnessBuilder.Shared")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f911aa39a111a453cccea7ee7443b603f5ac0f57")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+786a480d86a3571783e796fdc8d5723648c4088f")]
 [assembly: System.Reflection.AssemblyProductAttribute("WellnessBuilder.Shared")]
 [assembly: System.Reflection.AssemblyTitleAttribute("WellnessBuilder.Shared")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
