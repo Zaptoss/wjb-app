@@ -1,24 +1,17 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using WellnessBuilder.Shared.Entities;
+using WellnessBuilder.Shared.Entities.Offers;
 using WellnessBuilder.Shared.Helpers;
 using WellnessBuilder.Shared.Persistence;
+using WellnessBuilder.User.Api.IServices;
 
 namespace WellnessBuilder.User.Api.Services;
 
-public class OfferResolver : IOfferResolver
+public class OfferResolver(AppDbContext db) : IOfferResolver
 {
-    private readonly AppDbContext _db;
-
-    public OfferResolver(AppDbContext db)
-    {
-        _db = db;
-    }
-
     public async Task<List<Offer>> ResolveAsync(Dictionary<string, string> context)
     {
-        var offers = await _db.Offers
-            .Include(o => o.Rules)
-            .ThenInclude(r => r.ConditionGroups)
+        var offers = await db.Offers
+            .Include(o => o.ConditionGroups)
             .ThenInclude(g => g.Conditions)
             .ToListAsync();
 
@@ -26,16 +19,9 @@ public class OfferResolver : IOfferResolver
             .Where(o => EvaluateOffer(o, context))
             .ToList();
     }
-
+    
     private bool EvaluateOffer(Offer offer, Dictionary<string, string> context)
-    {
-        return offer.Rules.Any(r => EvaluateRule(r, context));
-    }
-
-    private bool EvaluateRule(OfferRule rule, Dictionary<string, string> context)
-    {
-        return rule.ConditionGroups.Any(g => EvaluateGroup(g, context));
-    }
+        => offer.ConditionGroups.Any(g => EvaluateGroup(g, context));
 
     private bool EvaluateGroup(OfferConditionGroup group, Dictionary<string, string> context)
     {

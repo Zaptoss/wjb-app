@@ -1,4 +1,4 @@
-﻿namespace WellnessBuilder.Shared.Entities;
+﻿namespace WellnessBuilder.Shared.Entities.Offers;
 
 public class Offer : BaseEntity
 {
@@ -8,5 +8,5 @@ public class Offer : BaseEntity
     public string? Description { get; set; }
     public string? DigitalPlanDetails { get; set; }
     public string? WellnessKitDetails { get; set; }
-    public ICollection<OfferRule> Rules { get; set; } = [];
+    public ICollection<OfferConditionGroup> ConditionGroups { get; set; } = [];
 }

@@ -1,4 +1,6 @@
-﻿namespace WellnessBuilder.Shared.Entities;
+﻿using WellnessBuilder.Shared.Entities.Offers;
+
+namespace WellnessBuilder.Shared.Entities.Sessions;
 
 public class SessionOffer : BaseEntity
 {

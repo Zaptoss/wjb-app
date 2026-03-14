@@ -1,10 +1,10 @@
-﻿namespace WellnessBuilder.Shared.Entities;
+﻿namespace WellnessBuilder.Shared.Entities.Offers;
 
 public class OfferConditionGroup : BaseEntity
 {
     public Guid Id { get; set; }
-    public Guid OfferRuleId { get; set; }
-
-    public OfferRule OfferRule { get; set; } = null!;
+    public Guid OfferId { get; set; }
+    
+    public Offer? Offer { get; set; }
     public ICollection<OfferCondition> Conditions { get; set; } = [];
 }

@@ -1,4 +1,7 @@
-﻿namespace WellnessBuilder.Shared.Entities;
+﻿using WellnessBuilder.Shared.Entities.Nodes;
+using WellnessBuilder.Shared.Entities.Sessions;
+
+namespace WellnessBuilder.Shared.Entities;
 
 public class Answer : BaseEntity
 {

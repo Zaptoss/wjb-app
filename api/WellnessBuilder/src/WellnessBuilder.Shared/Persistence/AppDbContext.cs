@@ -1,5 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WellnessBuilder.Shared.Entities;
+using WellnessBuilder.Shared.Entities.Edges;
+using WellnessBuilder.Shared.Entities.Nodes;
+using WellnessBuilder.Shared.Entities.Offers;
+using WellnessBuilder.Shared.Entities.Sessions;
 
 namespace WellnessBuilder.Shared.Persistence;
 
@@ -16,7 +20,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     // Offers
     public DbSet<Offer> Offers { get; set; }
-    public DbSet<OfferRule> OfferRules { get; set; }
     public DbSet<OfferConditionGroup> OfferConditionGroups { get; set; }
     public DbSet<OfferCondition> OfferConditions { get; set; }
 

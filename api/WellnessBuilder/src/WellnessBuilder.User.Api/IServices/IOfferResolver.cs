@@ -1,6 +1,6 @@
-﻿using WellnessBuilder.Shared.Entities;
+﻿using WellnessBuilder.Shared.Entities.Offers;
 
-namespace WellnessBuilder.User.Api.Services;
+namespace WellnessBuilder.User.Api.IServices;
 
 public interface IOfferResolver
 {

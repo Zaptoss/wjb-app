@@ -1,4 +1,4 @@
-﻿namespace WellnessBuilder.Shared.Entities;
+﻿namespace WellnessBuilder.Shared.Entities.Edges;
 
 public class EdgeConditionGroup : BaseEntity
 {

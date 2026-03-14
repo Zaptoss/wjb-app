@@ -1,6 +1,7 @@
-﻿using WellnessBuilder.Shared.Enums;
+﻿using WellnessBuilder.Shared.Entities.Edges;
+using WellnessBuilder.Shared.Enums;
 
-namespace WellnessBuilder.Shared.Entities;
+namespace WellnessBuilder.Shared.Entities.Nodes;
 
 public class Node : BaseEntity
 {

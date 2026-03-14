@@ -1,6 +1,6 @@
 ﻿using WellnessBuilder.Shared.Contracts.Sessions;
 
-namespace WellnessBuilder.User.Api.Services;
+namespace WellnessBuilder.User.Api.IServices;
 
 public interface ISessionService
 {

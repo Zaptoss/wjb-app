@@ -1,4 +1,6 @@
-﻿namespace WellnessBuilder.Shared.Entities;
+﻿using WellnessBuilder.Shared.Entities.Nodes;
+
+namespace WellnessBuilder.Shared.Entities.Edges;
 
 public class Edge : BaseEntity
 {

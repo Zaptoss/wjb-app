@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using WellnessBuilder.Shared.Entities;
+using WellnessBuilder.Shared.Entities.Offers;
 
 namespace WellnessBuilder.Shared.Persistence.Configurations;
 
@@ -12,9 +12,9 @@ public class OfferConditionGroupConfiguration : BaseEntityConfiguration<OfferCon
 
         builder.HasKey(g => g.Id);
 
-        builder.HasOne(g => g.OfferRule)
+        builder.HasOne(g => g.Offer)
             .WithMany(r => r.ConditionGroups)
-            .HasForeignKey(g => g.OfferRuleId)
+            .HasForeignKey(g => g.OfferId)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasMany(g => g.Conditions)
