@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WellnessBuilder.Shared.Contracts.Sessions;
-using WellnessBuilder.User.Api.Services;
+using WellnessBuilder.User.Api.IServices;
 
 namespace WellnessBuilder.User.Api.Controllers;
 

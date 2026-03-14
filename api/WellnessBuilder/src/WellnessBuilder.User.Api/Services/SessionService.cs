@@ -3,8 +3,12 @@ using WellnessBuilder.Shared.Contracts.Graph;
 using WellnessBuilder.Shared.Contracts.Offers;
 using WellnessBuilder.Shared.Contracts.Sessions;
 using WellnessBuilder.Shared.Entities;
+using WellnessBuilder.Shared.Entities.Nodes;
+using WellnessBuilder.Shared.Entities.Offers;
+using WellnessBuilder.Shared.Entities.Sessions;
 using WellnessBuilder.Shared.Enums;
 using WellnessBuilder.Shared.Persistence;
+using WellnessBuilder.User.Api.IServices;
 
 namespace WellnessBuilder.User.Api.Services;
 

@@ -1,6 +1,6 @@
 ﻿using WellnessBuilder.Shared.Enums;
 
-namespace WellnessBuilder.Shared.Entities;
+namespace WellnessBuilder.Shared.Entities.Nodes;
 
 public class NodeOptionCondition : BaseEntity
 {

@@ -1,4 +1,4 @@
-﻿namespace WellnessBuilder.Shared.Entities;
+﻿namespace WellnessBuilder.Shared.Entities.Nodes;
 
 public class NodeOption : BaseEntity
 {

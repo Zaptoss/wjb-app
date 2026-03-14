@@ -1,7 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using WellnessBuilder.Shared.Entities;
+using WellnessBuilder.Shared.Entities.Edges;
+using WellnessBuilder.Shared.Entities.Nodes;
 using WellnessBuilder.Shared.Helpers;
 using WellnessBuilder.Shared.Persistence;
+using WellnessBuilder.User.Api.IServices;
 
 namespace WellnessBuilder.User.Api.Services;
 
