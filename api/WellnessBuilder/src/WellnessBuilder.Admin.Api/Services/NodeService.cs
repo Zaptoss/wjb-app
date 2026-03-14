@@ -29,18 +29,18 @@ public class NodeService(AppDbContext db) : INodeService
 
         return MapToDto(node);
     }
-    
+
     public async Task<NodeDto> CreateAsync(CreateNodeRequest request)
     {
         var node = new Node
         {
             Id = Guid.NewGuid(),
-            NodeType = Enum.Parse<NodeType>(request.Type, ignoreCase: true),
+            NodeType = Enum.Parse<NodeType>(request.Type, true),
             Title = request.Title,
             Body = request.Body,
             InputType = request.InputType is null
                 ? null
-                : Enum.Parse<InputType>(request.InputType, ignoreCase: true),
+                : Enum.Parse<InputType>(request.InputType, true),
             AttributeKey = request.AttributeKey,
             DisplayOrder = request.DisplayOrder,
             Options = request.Options.Select((o, i) => new NodeOption
@@ -67,12 +67,12 @@ public class NodeService(AppDbContext db) : INodeService
         if (node is null)
             throw new KeyNotFoundException($"Node {id} not found");
 
-        node.NodeType = Enum.Parse<NodeType>(request.Type, ignoreCase: true);
+        node.NodeType = Enum.Parse<NodeType>(request.Type, true);
         node.Title = request.Title;
         node.Body = request.Body;
         node.InputType = request.InputType is null
             ? null
-            : Enum.Parse<InputType>(request.InputType, ignoreCase: true);
+            : Enum.Parse<InputType>(request.InputType, true);
         node.AttributeKey = request.AttributeKey;
         node.DisplayOrder = request.DisplayOrder;
 
@@ -90,7 +90,7 @@ public class NodeService(AppDbContext db) : INodeService
 
         return MapToDto(node);
     }
-    
+
 
     public async Task DeleteAsync(Guid id)
     {
@@ -103,20 +103,23 @@ public class NodeService(AppDbContext db) : INodeService
         await db.SaveChangesAsync();
     }
 
-    private static NodeDto MapToDto(Node node) => new()
+    private static NodeDto MapToDto(Node node)
     {
-        Id = node.Id,
-        Type = node.NodeType.ToString().ToLowerInvariant(),
-        Title = node.Title,
-        Body = node.Body,
-        InputType = node.InputType?.ToString(),
-        Options = node.Options
-            .OrderBy(o => o.DisplayOrder)
-            .Select(o => new NodeOptionDto
-            {
-                Label = o.Label,
-                Value = o.Value,
-                Order = o.DisplayOrder
-            }).ToList()
-    };
+        return new NodeDto
+        {
+            Id = node.Id,
+            Type = node.NodeType.ToString().ToLowerInvariant(),
+            Title = node.Title,
+            Body = node.Body,
+            InputType = node.InputType?.ToString(),
+            Options = node.Options
+                .OrderBy(o => o.DisplayOrder)
+                .Select(o => new NodeOptionDto
+                {
+                    Label = o.Label,
+                    Value = o.Value,
+                    Order = o.DisplayOrder
+                }).ToList()
+        };
+    }
 }

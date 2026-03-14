@@ -7,5 +7,5 @@ public class OfferDto
     public required string Description { get; set; }
     public required string DigitalPlanDetails { get; set; }
     public required string WellnessKitDetails { get; set; }
-    public required string Why { get; set; }     
+    public required string Why { get; set; }
 }
