@@ -1,0 +1,23 @@
+name: wjb
+
+services:
+  postgres:
+    container_name: wjb-postgres
+    image: postgis/postgis:17-3.5
+    environment:
+      - POSTGRES_USER=wjb
+      - POSTGRES_PASSWORD=wjb
+      - POSTGRES_DB=wjb
+      - PGDATA=/data
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d wjb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pg_data:
