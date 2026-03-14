@@ -8,17 +8,13 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.2"/>
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.5"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.5" />
+
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\WellnessBuilder.Shared\WellnessBuilder.Shared.csproj"/>
     </ItemGroup>
-
-    <ItemGroup>
-        <Folder Include="Controllers\"/>
-        <Folder Include="Requests\"/>
-        <Folder Include="Services\"/>
-    </ItemGroup>
-
 
 </Project>

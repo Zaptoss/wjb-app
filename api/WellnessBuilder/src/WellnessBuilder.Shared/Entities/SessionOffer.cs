@@ -7,6 +7,6 @@ public class SessionOffer
     public Guid OfferId { get; set; }
     public DateTime AssignedAt { get; set; }
 
-    public required Session Session { get; set; }
-    public required Offer Offer { get; set; }
+    public Session? Session { get; set; }
+    public Offer? Offer { get; set; }
 }

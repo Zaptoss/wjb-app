@@ -8,6 +8,6 @@ public class Answer
     public required string AttributeKey { get; set; }
     public required string Value { get; set; }
 
-    public required Session Session { get; set; }
-    public required Node Node { get; set; }
+    public Session? Session { get; set; }
+    public Node? Node { get; set; }
 }

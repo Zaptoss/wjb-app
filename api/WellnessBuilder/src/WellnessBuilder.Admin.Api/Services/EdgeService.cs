@@ -30,7 +30,7 @@ public class EdgeService(AppDbContext db) : IEdgeService
                 {
                     Id = Guid.NewGuid(),
                     AttributeKey = c.AttributeKey,
-                    Operator = Enum.Parse<ConditionOperator>(c.Operator, ignoreCase: true),
+                    Operator = Enum.Parse<ConditionOperator>(c.Operator, true),
                     Value = c.Value
                 }).ToList()
             }).ToList()
@@ -57,7 +57,7 @@ public class EdgeService(AppDbContext db) : IEdgeService
     {
         var edge = await db.Edges
             .Include(e => e.ConditionGroups)
-                .ThenInclude(g => g.Conditions)
+            .ThenInclude(g => g.Conditions)
             .FirstOrDefaultAsync(e => e.Id == edgeId);
 
         if (edge is null)
@@ -71,7 +71,7 @@ public class EdgeService(AppDbContext db) : IEdgeService
             {
                 Id = Guid.NewGuid(),
                 AttributeKey = c.AttributeKey,
-                Operator = Enum.Parse<ConditionOperator>(c.Operator, ignoreCase: true),
+                Operator = Enum.Parse<ConditionOperator>(c.Operator, true),
                 Value = c.Value
             }).ToList()
         };
@@ -93,22 +93,25 @@ public class EdgeService(AppDbContext db) : IEdgeService
         await db.SaveChangesAsync();
     }
 
-    private static EdgeDto MapToDto(Edge edge) => new()
+    private static EdgeDto MapToDto(Edge edge)
     {
-        Id = edge.Id,
-        FromNodeId = edge.FromNodeId,
-        ToNodeId = edge.ToNodeId,
-        Priority = edge.Priority,
-        ConditionGroups = edge.ConditionGroups.Select(g => new ConditionGroupDto
+        return new EdgeDto
         {
-            Id = g.Id,
-            Conditions = g.Conditions.Select(c => new ConditionDto
+            Id = edge.Id,
+            FromNodeId = edge.FromNodeId,
+            ToNodeId = edge.ToNodeId,
+            Priority = edge.Priority,
+            ConditionGroups = edge.ConditionGroups.Select(g => new ConditionGroupDto
             {
-                Id = c.Id,
-                AttributeKey = c.AttributeKey,
-                Operator = c.Operator.ToString(),
-                Value = c.Value
+                Id = g.Id,
+                Conditions = g.Conditions.Select(c => new ConditionDto
+                {
+                    Id = c.Id,
+                    AttributeKey = c.AttributeKey,
+                    Operator = c.Operator.ToString(),
+                    Value = c.Value
+                }).ToList()
             }).ToList()
-        }).ToList()
-    };
+        };
+    }
 }

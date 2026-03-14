@@ -10,5 +10,5 @@ public class OfferCondition
     public ConditionOperator Operator { get; set; }
     public required string Value { get; set; }
 
-    public required OfferConditionGroup Group { get; set; }
+    public OfferConditionGroup? Group { get; set; }
 }
