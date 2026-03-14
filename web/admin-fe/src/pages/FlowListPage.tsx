@@ -28,34 +28,60 @@ interface FlowMenuProps {
 
 function FlowMenu({ flow, onDelete, onDuplicate, onToggleActive }: FlowMenuProps) {
   const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState<{ top?: number; bottom?: number; right: number }>({ right: 0 });
   const ref = useRef<HTMLDivElement>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!open) return;
     const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      if (ref.current && !ref.current.contains(e.target as Node) && menuRef.current && !menuRef.current.contains(e.target as Node)) setOpen(false);
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, [open]);
 
+  const handleToggle = () => {
+    if (!open && btnRef.current) {
+      const rect = btnRef.current.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const right = window.innerWidth - rect.right;
+      if (spaceBelow < 180) {
+        setPos({ bottom: window.innerHeight - rect.top + 4, right });
+      } else {
+        setPos({ top: rect.bottom + 4, right });
+      }
+    }
+    setOpen((v) => !v);
+  };
+
   return (
     <div ref={ref} className="relative" onClick={(e) => e.stopPropagation()}>
       <button
-        onClick={() => setOpen((v) => !v)}
-        className="flex h-7 w-7 items-center justify-center rounded-md transition-colors"
+        ref={btnRef}
+        onClick={handleToggle}
+        className="flex h-8 w-8 items-center justify-center rounded-md transition-colors"
         style={{ color: 'var(--text-tertiary)' }}
         onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--bg-surface-hover)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
         onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = 'var(--text-tertiary)'; }}
       >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-          <circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+          <circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/>
         </svg>
       </button>
       {open && (
         <div
-          className="absolute right-0 top-full z-50 mt-1 min-w-[160px] rounded-lg py-1"
-          style={{ backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-default)', boxShadow: '0 4px 16px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.04)' }}
+          ref={menuRef}
+          className="fixed z-[9999] min-w-[160px] rounded-lg py-1"
+          style={{
+            top: pos.top != null ? pos.top : undefined,
+            bottom: pos.bottom != null ? pos.bottom : undefined,
+            right: pos.right,
+            backgroundColor: 'var(--bg-surface)',
+            border: '1px solid var(--border-default)',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.04)',
+          }}
         >
           <button
             onClick={() => { onToggleActive(); setOpen(false); }}

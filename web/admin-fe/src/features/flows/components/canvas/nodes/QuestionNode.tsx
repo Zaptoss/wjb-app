@@ -25,17 +25,16 @@ export function QuestionNode({ id, data, selected }: NodeProps<QuestionNodeType>
         {data.text && <p className="mt-1 line-clamp-2 text-xs text-gray-500">{data.text}</p>}
       </div>
       {options.length > 0 && (
-        <div className="relative border-t border-blue-100 px-3 pb-2 pt-1">
-          {options.map((opt, i) => (
-            <div key={opt.id} className="relative my-1 flex items-center">
+        <div className="border-t border-blue-100 px-3 pb-2 pt-1">
+          {options.map((opt) => (
+            <div key={opt.id} className="relative my-1 flex items-center" style={{ minHeight: 24 }}>
               <div className="h-1.5 w-1.5 rounded-full bg-blue-300" />
               <span className="ml-2 flex-1 truncate text-xs text-gray-600">{opt.label}</span>
               <Handle
                 type="source"
                 position={Position.Right}
                 id={opt.id}
-                style={{ top: `${(i + 0.5) * 24}px`, right: -6 }}
-                className="!border-blue-400 !bg-blue-100"
+                className="!border-blue-400 !bg-blue-100 !top-1/2 !-translate-y-1/2 !right-[-13px]"
               />
             </div>
           ))}
@@ -44,7 +43,7 @@ export function QuestionNode({ id, data, selected }: NodeProps<QuestionNodeType>
       {options.length === 0 && (
         <Handle type="source" position={Position.Right} id="default" className="!border-blue-400 !bg-blue-100" />
       )}
-      <Handle type="target" position={Position.Left} className="!border-blue-400 !bg-blue-100" />
+      <Handle type="target" position={Position.Left} className="!border-blue-400 !bg-blue-100 !left-[-6px]" />
     </div>
   );
 }

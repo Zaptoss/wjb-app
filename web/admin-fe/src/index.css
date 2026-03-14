@@ -42,3 +42,10 @@
     background: var(--text-tertiary);
   }
 }
+
+/* React Flow handle overrides — bigger, sit on node border */
+.react-flow__handle {
+  width: 10px !important;
+  height: 10px !important;
+  border-width: 2px !important;
+}
