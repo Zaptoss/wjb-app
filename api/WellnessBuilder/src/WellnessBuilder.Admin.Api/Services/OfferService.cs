@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WellnessBuilder.Admin.Api.Requests;
 using WellnessBuilder.Shared.Contracts.Offers;
-using WellnessBuilder.Shared.Entities;
+using WellnessBuilder.Shared.Entities.Offers;
 using WellnessBuilder.Shared.Enums;
 using WellnessBuilder.Shared.Persistence;
 

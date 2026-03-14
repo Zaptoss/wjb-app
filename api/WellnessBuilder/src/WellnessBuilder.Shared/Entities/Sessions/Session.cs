@@ -1,4 +1,4 @@
-﻿namespace WellnessBuilder.Shared.Entities;
+﻿namespace WellnessBuilder.Shared.Entities.Sessions;
 
 public class Session
 {

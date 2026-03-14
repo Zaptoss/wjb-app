@@ -1,5 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WellnessBuilder.Shared.Entities;
+using WellnessBuilder.Shared.Entities.Edges;
+using WellnessBuilder.Shared.Entities.Nodes;
+using WellnessBuilder.Shared.Entities.Offers;
+using WellnessBuilder.Shared.Entities.Sessions;
 
 namespace WellnessBuilder.Shared.Persistence;
 

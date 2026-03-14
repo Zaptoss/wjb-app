@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using WellnessBuilder.Shared.Persistence;
+using WellnessBuilder.User.Api.IServices;
 using WellnessBuilder.User.Api.Middleware;
 using WellnessBuilder.User.Api.Services;
 
