@@ -21,9 +21,9 @@ public class OffersController(IOfferService offerService) : ControllerBase
     [SwaggerOperation(Summary = "Get all offers by flow")]
     [ProducesResponseType(typeof(List<OfferDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> GetAll([FromQuery] Guid flowId)
+    public async Task<IActionResult> GetAll()
     {
-        var offers = await offerService.GetAllAsync(flowId);
+        var offers = await offerService.GetAllAsync();
         return Ok(offers);
     }
 

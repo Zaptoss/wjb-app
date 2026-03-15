@@ -10,12 +10,11 @@ namespace WellnessBuilder.Admin.Api.Services;
 
 public class OfferService(AppDbContext db) : IOfferService
 {
-    public async Task<List<OfferDto>> GetAllAsync(Guid flowId)
+    public async Task<List<OfferDto>> GetAllAsync()
     {
         return await db.Offers
             .Include(o => o.ConditionGroups)
             .ThenInclude(g => g.Conditions)
-            .Where(o => o.FlowId == flowId)
             .Select(o => MapToDto(o))
             .ToListAsync();
     }
@@ -38,7 +37,6 @@ public class OfferService(AppDbContext db) : IOfferService
         var offer = new Offer
         {
             Id = Guid.NewGuid(),
-            FlowId = request.FlowId,
             Name = request.Name,
             Description = request.Description,
             DigitalPlanDetails = request.DigitalPlanDetails,

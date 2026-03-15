@@ -36,10 +36,5 @@ public class FlowConfiguration : BaseEntityConfiguration<Flow>
             .WithOne(e => e.Flow)
             .HasForeignKey(e => e.FlowId)
             .OnDelete(DeleteBehavior.Restrict);
-
-        builder.HasMany<Offer>(f => f.Offers)
-            .WithOne(o => o.Flow)
-            .HasForeignKey(o => o.FlowId)
-            .OnDelete(DeleteBehavior.Restrict);
     }
 }
