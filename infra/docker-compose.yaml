@@ -1,6 +1,123 @@
 name: wjb
 
 services:
+  admin-frontend:
+    container_name: wjb-admin-frontend
+    build:
+      context: ../web/admin-fe
+      dockerfile: Dockerfile
+    ports:
+      - "8000:80"
+    environment:
+      # Override with your local API server address
+      APP_API_URL: "http://localhost:80"
+      APP_WS_URL:  "ws://localhost:80"
+      APP_ENV:     "development"
+      APP_VERSION: "local"
+      APP_SENTRY_DSN: ""
+      APP_FEATURE_FLAGS: '{"newDashboard":false}'
+    # Nginx temp dirs must be writable; everything else can be read-only
+    tmpfs:
+      - /var/cache/nginx
+      - /var/run
+    depends_on:
+      admin-backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/"]
+      start_period: 5s 
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+  user-frontend:
+    container_name: wjb-user-frontend
+    build:
+      context: ../web/user-fe
+      dockerfile: Dockerfile
+    ports:
+      - "8001:80"
+    environment:
+      # Override with your local API server address
+      APP_API_URL: "http://localhost:80"
+      APP_WS_URL:  "ws://localhost:80"
+      APP_ENV:     "development"
+      APP_VERSION: "local"
+      APP_SENTRY_DSN: ""
+      APP_FEATURE_FLAGS: '{"newDashboard":false}'
+    # Nginx temp dirs must be writable; everything else can be read-only
+    tmpfs:
+      - /var/cache/nginx
+      - /var/run
+    depends_on:
+      user-backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/"]
+      start_period: 5s 
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+# "ConnectionStrings": {
+#     "LocalhostConnection": "Host=localhost;Port=5432;Database=wjb;Username=wjb;Password=wjb"
+#   },
+
+  admin-backend:
+    container_name: wjb-admin-backend
+    build:
+      context: ../api/WellnessBuilder
+      dockerfile: Dockerfile.admin
+    ports:
+      - "8010:8080"
+    environment:
+      ConnectionStrings__LocalhostConnection: "Host=wjb-postgres;Port=5432;Database=wjb;Username=wjb;Password=wjb"
+      Jwt__Secret: "supersecret"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migration-backend:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      start_period: 5s 
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+  user-backend:
+    container_name: wjb-user-backend
+    build:
+      context: ../api/WellnessBuilder
+      dockerfile: Dockerfile.user
+    ports:
+      - "8011:8080"
+    environment:
+      ConnectionStrings__LocalhostConnection: "Host=wjb-postgres;Port=5432;Database=wjb;Username=wjb;Password=wjb"
+      Jwt__Secret: "supersecret"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migration-backend:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      start_period: 5s 
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+  migration-backend:
+    container_name: wjb-migration-backend
+    build:
+      context: ../api/WellnessBuilder
+      dockerfile: Dockerfile.migration
+    environment:
+      ConnectionStrings__LocalhostConnection: "Host=wjb-postgres;Port=5432;Database=wjb;Username=wjb;Password=wjb"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   postgres:
     container_name: wjb-postgres
     image: postgis/postgis:17-3.5
