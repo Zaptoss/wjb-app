@@ -5,7 +5,7 @@ namespace WellnessBuilder.Admin.Api.IServices;
 
 public interface IOfferService
 {
-    Task<List<OfferDto>> GetAllAsync(Guid flowId);
+    Task<List<OfferDto>> GetAllAsync();
     Task<OfferDto> GetByIdAsync(Guid id);
     Task<OfferDto> CreateAsync(CreateOfferRequest request);
     Task<OfferDto> UpdateAsync(Guid id, UpdateOfferRequest request);
