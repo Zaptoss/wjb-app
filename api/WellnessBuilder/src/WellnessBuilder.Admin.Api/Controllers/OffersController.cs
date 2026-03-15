@@ -15,10 +15,10 @@ namespace WellnessBuilder.Admin.Api.Controllers;
 public class OffersController(IOfferService offerService) : ControllerBase
 {
     /// <summary>
-    /// Returns all offers with their condition groups
+    /// Returns all global offers
     /// </summary>
     [HttpGet]
-    [SwaggerOperation(Summary = "Get all offers by flow")]
+    [SwaggerOperation(Summary = "Get all offers")]
     [ProducesResponseType(typeof(List<OfferDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> GetAll()
@@ -42,10 +42,10 @@ public class OffersController(IOfferService offerService) : ControllerBase
     }
 
     /// <summary>
-    /// Creates a new offer with condition groups
+    /// Creates a new global offer
     /// </summary>
     [HttpPost]
-    [SwaggerOperation(Summary = "Create offer", Description = "Creates an offer with condition groups that determine when it is assigned to a user")]
+    [SwaggerOperation(Summary = "Create offer")]
     [ProducesResponseType(typeof(OfferDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> Create([FromBody] CreateOfferRequest request)
@@ -55,10 +55,10 @@ public class OffersController(IOfferService offerService) : ControllerBase
     }
 
     /// <summary>
-    /// Updates an existing offer and replaces its condition groups
+    /// Updates an existing offer
     /// </summary>
     [HttpPut("{id:guid}")]
-    [SwaggerOperation(Summary = "Update offer", Description = "Replaces all condition groups with the ones provided in the request")]
+    [SwaggerOperation(Summary = "Update offer")]
     [ProducesResponseType(typeof(OfferDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -69,7 +69,7 @@ public class OffersController(IOfferService offerService) : ControllerBase
     }
 
     /// <summary>
-    /// Deletes an offer and all its condition groups
+    /// Deletes an offer
     /// </summary>
     [HttpDelete("{id:guid}")]
     [SwaggerOperation(Summary = "Delete offer")]

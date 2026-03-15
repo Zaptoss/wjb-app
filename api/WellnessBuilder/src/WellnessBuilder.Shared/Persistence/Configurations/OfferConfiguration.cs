@@ -28,6 +28,9 @@ public class OfferConfiguration : BaseEntityConfiguration<Offer>
             .IsRequired()
             .HasMaxLength(2000);
 
+        builder.Property(o => o.Why)
+            .HasMaxLength(2000);
+
         builder.HasMany(o => o.ConditionGroups)
             .WithOne(g => g.Offer)
             .HasForeignKey(g => g.OfferId)

@@ -30,13 +30,17 @@ namespace WellnessBuilder.Shared.Persistence.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
 
                     b.ToTable("Admins");
                 });
@@ -49,7 +53,8 @@ namespace WellnessBuilder.Shared.Persistence.Migrations
 
                     b.Property<string>("AttributeKey")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -65,7 +70,8 @@ namespace WellnessBuilder.Shared.Persistence.Migrations
 
                     b.Property<string>("Value")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
                     b.HasKey("Id");
 
@@ -217,10 +223,12 @@ namespace WellnessBuilder.Shared.Persistence.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("AttributeKey")
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("Body")
-                        .HasColumnType("text");
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -228,15 +236,29 @@ namespace WellnessBuilder.Shared.Persistence.Migrations
                     b.Property<Guid>("FlowId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
                     b.Property<int?>("InputType")
                         .HasColumnType("integer");
 
                     b.Property<int>("NodeType")
                         .HasColumnType("integer");
 
+                    b.Property<Guid?>("OfferId")
+                        .HasColumnType("uuid");
+
+                    b.Property<double>("PositionX")
+                        .HasColumnType("double precision");
+
+                    b.Property<double>("PositionY")
+                        .HasColumnType("double precision");
+
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -361,9 +383,6 @@ namespace WellnessBuilder.Shared.Persistence.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
 
-                    b.Property<Guid?>("FlowId")
-                        .HasColumnType("uuid");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -377,9 +396,11 @@ namespace WellnessBuilder.Shared.Persistence.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
 
-                    b.HasKey("Id");
+                    b.Property<string>("Why")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
 
-                    b.HasIndex("FlowId");
+                    b.HasKey("Id");
 
                     b.ToTable("Offers");
                 });
@@ -494,7 +515,7 @@ namespace WellnessBuilder.Shared.Persistence.Migrations
                     b.HasOne("WellnessBuilder.Shared.Entities.Nodes.Node", "Node")
                         .WithMany()
                         .HasForeignKey("NodeId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("WellnessBuilder.Shared.Entities.Sessions.Session", "Session")
@@ -601,13 +622,6 @@ namespace WellnessBuilder.Shared.Persistence.Migrations
                     b.Navigation("NodeOption");
                 });
 
-            modelBuilder.Entity("WellnessBuilder.Shared.Entities.Offers.Offer", b =>
-                {
-                    b.HasOne("WellnessBuilder.Shared.Entities.Flow", null)
-                        .WithMany("Offers")
-                        .HasForeignKey("FlowId");
-                });
-
             modelBuilder.Entity("WellnessBuilder.Shared.Entities.Offers.OfferCondition", b =>
                 {
                     b.HasOne("WellnessBuilder.Shared.Entities.Offers.OfferConditionGroup", "Group")
@@ -664,8 +678,6 @@ namespace WellnessBuilder.Shared.Persistence.Migrations
                     b.Navigation("Edges");
 
                     b.Navigation("Nodes");
-
-                    b.Navigation("Offers");
                 });
 
             modelBuilder.Entity("WellnessBuilder.Shared.Entities.Nodes.Node", b =>

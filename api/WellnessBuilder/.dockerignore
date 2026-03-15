@@ -1,0 +1,6 @@
+# api/WellnessBuilder/.dockerignore
+**/obj
+**/bin
+**/.vs
+**/.idea
+**/*.user

@@ -6,7 +6,7 @@ namespace WellnessBuilder.Shared.Persistence.Configurations;
 
 public class AnswerConfiguration : BaseEntityConfiguration<Answer>
 {
-    public void Configure(EntityTypeBuilder<Answer> builder)
+    public override void Configure(EntityTypeBuilder<Answer> builder)
     {
         base.Configure(builder);
         builder.HasKey(a => a.Id);

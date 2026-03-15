@@ -6,5 +6,5 @@ public class CreateOfferRequest
     public required string Description { get; set; }
     public required string DigitalPlanDetails { get; set; }
     public required string WellnessKitDetails { get; set; }
-    public List<CreateConditionGroupRequest> ConditionGroups { get; set; } = [];
+    public string? Why { get; set; }
 }

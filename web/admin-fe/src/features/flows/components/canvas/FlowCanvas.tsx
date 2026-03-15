@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ReactFlow,
   Background,
@@ -7,6 +7,7 @@ import {
   BackgroundVariant,
   ViewportPortal,
   useOnViewportChange,
+  type ReactFlowInstance,
   type NodeChange,
   type NodeMouseHandler,
   type OnNodeDrag,
@@ -23,6 +24,7 @@ import type { FlowNode, FlowEdge } from '../../types';
 
 interface Props {
   reactFlowWrapper: React.RefObject<HTMLDivElement>;
+  onReady?: (actions: { addNodeAtViewportCenter: (type: string) => void }) => void;
 }
 
 function ZoomAwareBackground() {
@@ -47,7 +49,7 @@ function ZoomAwareBackground() {
   );
 }
 
-export function FlowCanvas({ reactFlowWrapper }: Props) {
+export function FlowCanvas({ reactFlowWrapper, onReady }: Props) {
   const nodes = useFlowStore((s) => s.nodes);
   const edges = useFlowStore((s) => s.edges);
   const storeOnNodesChange = useFlowStore((s) => s.onNodesChange);
@@ -67,7 +69,7 @@ export function FlowCanvas({ reactFlowWrapper }: Props) {
     mousePos: { x: number; y: number };
   } | null>(null);
 
-  const [rfInstance, setRfInstance] = useState<ReturnType<typeof useFlowStore> | null>(null);
+  const [rfInstance, setRfInstance] = useState<ReactFlowInstance<FlowNode, FlowEdge> | null>(null);
   const [dragPreview, setDragPreview] = useState<
     Array<{
       id: string;
@@ -83,32 +85,51 @@ export function FlowCanvas({ reactFlowWrapper }: Props) {
     previewSizes: Record<string, { width: number; height: number }>;
   } | null>(null);
 
+  const getViewportCenterPosition = useCallback(() => {
+    if (!rfInstance || !reactFlowWrapper.current) {
+      return { x: 120, y: 120 };
+    }
+
+    const bounds = reactFlowWrapper.current.getBoundingClientRect();
+
+    return rfInstance.screenToFlowPosition({
+      x: bounds.left + bounds.width / 2,
+      y: bounds.top + bounds.height / 2,
+    });
+  }, [reactFlowWrapper, rfInstance]);
+
+  const focusNode = useCallback((type: string, position: { x: number; y: number }) => {
+    if (!rfInstance) return;
+
+    const sizeByType: Record<string, { width: number; height: number }> = {
+      info: { width: 220, height: 120 },
+      question: { width: 240, height: 150 },
+      offer: { width: 220, height: 110 },
+      end: { width: 180, height: 90 },
+    };
+
+    const size = sizeByType[type] ?? { width: 220, height: 120 };
+
+    window.requestAnimationFrame(() => {
+      rfInstance.setCenter(
+        position.x + size.width / 2,
+        position.y + size.height / 2,
+        {
+          zoom: rfInstance.getZoom(),
+          duration: 180,
+        },
+      );
+    });
+  }, [rfInstance]);
+
   const onDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
   }, []);
 
-  const onDrop = useCallback(
-    (e: React.DragEvent) => {
-      e.preventDefault();
-      const nodeType = e.dataTransfer.getData('nodeType');
-      if (!nodeType || !rfInstance || !reactFlowWrapper.current) return;
-
-      const bounds = reactFlowWrapper.current.getBoundingClientRect();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const position = (rfInstance as any).screenToFlowPosition({
-        x: e.clientX - bounds.left,
-        y: e.clientY - bounds.top,
-      });
-
-      createNode(nodeType, position);
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [rfInstance, reactFlowWrapper]
-  );
-
-  const createNode = (type: string, position: { x: number; y: number }) => {
+  const createNode = useCallback((type: string, position?: { x: number; y: number }) => {
     const id = crypto.randomUUID();
+    const nextPosition = position ?? getViewportCenterPosition();
     let data: FlowNode['data'];
     if (type === 'info') {
       data = { type: 'info', title: 'New Info Page', body: '', imageUrl: '' };
@@ -128,10 +149,38 @@ export function FlowCanvas({ reactFlowWrapper }: Props) {
       data = { type: 'end' };
     }
 
-    const node: FlowNode = { id, type, position, data };
+    const node: FlowNode = { id, type, position: nextPosition, data };
     addNode(node);
     setSelectedNodeId(id);
-  };
+    focusNode(type, nextPosition);
+  }, [addNode, focusNode, getViewportCenterPosition, setSelectedNodeId]);
+
+  const addNodeAtViewportCenter = useCallback((type: string) => {
+    createNode(type, getViewportCenterPosition());
+  }, [createNode, getViewportCenterPosition]);
+
+  useEffect(() => {
+    if (!onReady) return;
+    onReady({ addNodeAtViewportCenter });
+  }, [addNodeAtViewportCenter, onReady]);
+
+  const onDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      const nodeType = e.dataTransfer.getData('application/reactflow')
+        || e.dataTransfer.getData('text/plain')
+        || e.dataTransfer.getData('nodeType');
+      if (!nodeType || !rfInstance) return;
+
+      const position = rfInstance.screenToFlowPosition({
+        x: e.clientX,
+        y: e.clientY,
+      });
+
+      createNode(nodeType, position);
+    },
+    [createNode, rfInstance]
+  );
 
   const onNodeContextMenu: NodeMouseHandler = useCallback((e, node) => {
     e.preventDefault();
@@ -158,15 +207,13 @@ export function FlowCanvas({ reactFlowWrapper }: Props) {
   const onPaneContextMenu = useCallback(
     (e: React.MouseEvent | MouseEvent) => {
       e.preventDefault();
-      if (!rfInstance || !reactFlowWrapper.current) return;
+      if (!rfInstance) return;
 
       const selectedIds = nodes.filter((item) => item.selected).map((item) => item.id);
-      const bounds = reactFlowWrapper.current.getBoundingClientRect();
       const nativeE = e as MouseEvent;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const position = (rfInstance as any).screenToFlowPosition({
-        x: nativeE.clientX - bounds.left,
-        y: nativeE.clientY - bounds.top,
+      const position = rfInstance.screenToFlowPosition({
+        x: nativeE.clientX,
+        y: nativeE.clientY,
       });
       setContextMenu({
         target:
@@ -176,7 +223,7 @@ export function FlowCanvas({ reactFlowWrapper }: Props) {
         mousePos: { x: nativeE.clientX, y: nativeE.clientY },
       });
     },
-    [nodes, rfInstance, reactFlowWrapper]
+    [nodes, rfInstance]
   );
 
   const onPaneClick = useCallback(() => {

@@ -1,8 +1,20 @@
 import { useState, useEffect, useRef } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../features/flows/db/flowDb';
 import type { FlowDraft } from '../features/flows/types';
 import { NodePalette } from '../features/flows/components/sidebar/NodePalette';
+import {
+  activateFlow,
+  buildSaveFlowGraphRequest,
+  createFlow as createFlowRecord,
+  deactivateFlow,
+  fetchFlowGraph,
+  fetchFlows,
+  mapGraphToDraft,
+  removeFlow,
+  saveFlowGraph,
+} from '../features/flows/api/flowApi';
 import { useFlowStore } from '../features/flows/store/flowStore';
 
 const PAGE_SIZE = 8;
@@ -18,6 +30,63 @@ function formatDate(iso: string) {
 }
 
 type SortKey = 'name' | 'updatedAt' | 'nodes';
+
+function cloneValue<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value)) as T;
+}
+
+function duplicateDraft(flow: FlowDraft): FlowDraft {
+  const idMap = new Map<string, string>();
+  flow.nodes.forEach((node) => {
+    idMap.set(node.id, crypto.randomUUID());
+  });
+
+  const nodes = flow.nodes.map((node) => ({
+    ...cloneValue(node),
+    id: idMap.get(node.id)!,
+    position: {
+      x: node.position.x + 60,
+      y: node.position.y + 60,
+    },
+  }));
+
+  const edges = flow.edges.map((edge) => ({
+    ...cloneValue(edge),
+    id: crypto.randomUUID(),
+    source: idMap.get(edge.source) ?? edge.source,
+    target: idMap.get(edge.target) ?? edge.target,
+  }));
+
+  return {
+    ...flow,
+    id: crypto.randomUUID(),
+    name: `${flow.name} (copy)`,
+    nodes,
+    edges,
+    updatedAt: new Date().toISOString(),
+    isDirty: false,
+    isActive: false,
+  };
+}
+
+async function mergeFlowsWithDrafts() {
+  const [flows, drafts] = await Promise.all([fetchFlows(), db.flowDrafts.toArray()]);
+  const draftMap = new Map(drafts.map((draft) => [draft.id, draft]));
+
+  return flows.map<FlowDraft>((flow) => {
+    const draft = draftMap.get(flow.id);
+
+    return {
+      id: flow.id,
+      name: draft?.isDirty ? draft.name : flow.title,
+      nodes: draft?.nodes ?? [],
+      edges: draft?.edges ?? [],
+      updatedAt: flow.updatedAt,
+      isDirty: draft?.isDirty ?? false,
+      isActive: flow.isActive,
+    };
+  });
+}
 
 interface FlowMenuProps {
   flow: FlowDraft;
@@ -136,53 +205,74 @@ export default function FlowListPage() {
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const [page, setPage] = useState(1);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const resetFlow = useFlowStore((s) => s.resetFlow);
 
-  const loadFlows = async () => {
-    const all = await db.flowDrafts.toArray();
-    setAllFlows(all);
-  };
+  const flowsQuery = useQuery({
+    queryKey: ['flows'],
+    queryFn: mergeFlowsWithDrafts,
+    staleTime: 0,
+    refetchOnMount: 'always',
+  });
 
   useEffect(() => {
     resetFlow();
-    loadFlows();
-  }, []);
+  }, [resetFlow]);
+
+  useEffect(() => {
+    if (flowsQuery.data) {
+      setAllFlows(flowsQuery.data);
+    }
+  }, [flowsQuery.data]);
+
+  const createFlowMutation = useMutation({
+    mutationFn: () => createFlowRecord('Untitled Flow'),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['flows'] });
+    },
+  });
+
+  const deleteFlowMutation = useMutation({
+    mutationFn: removeFlow,
+    onSuccess: async (_, id) => {
+      await db.flowDrafts.delete(id);
+      await queryClient.invalidateQueries({ queryKey: ['flows'] });
+    },
+  });
+
+  const activateFlowMutation = useMutation({
+    mutationFn: async (flow: FlowDraft) => {
+      if (flow.isActive) {
+        await deactivateFlow(flow.id);
+      } else {
+        await activateFlow(flow.id);
+      }
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['flows'] });
+    },
+  });
 
   const createFlow = async () => {
-    const id = crypto.randomUUID();
-    await db.flowDrafts.put({
-      id,
-      name: 'Untitled Flow',
-      nodes: [],
-      edges: [],
-      updatedAt: new Date().toISOString(),
-      isDirty: false,
-      isActive: false,
-    });
-    navigate(`/flows/${id}`);
+    const flow = await createFlowMutation.mutateAsync();
+    navigate(`/flows/${flow.id}`);
   };
 
   const deleteFlow = async (id: string) => {
-    await db.flowDrafts.delete(id);
-    loadFlows();
+    await deleteFlowMutation.mutateAsync(id);
   };
 
   const duplicateFlow = async (flow: FlowDraft) => {
-    const newId = crypto.randomUUID();
-    await db.flowDrafts.put({
-      ...flow,
-      id: newId,
-      name: `${flow.name} (copy)`,
-      updatedAt: new Date().toISOString(),
-      isDirty: true,
-      isActive: false,
-    });
-    loadFlows();
+    const sourceDraft = flow.nodes.length > 0 ? flow : mapGraphToDraft(await fetchFlowGraph(flow.id));
+    const duplicated = duplicateDraft(sourceDraft);
+    const created = await createFlowRecord(duplicated.name);
+    const savedGraph = await saveFlowGraph(created.id, buildSaveFlowGraphRequest(duplicated.name, duplicated.nodes, duplicated.edges));
+    await db.flowDrafts.put(mapGraphToDraft(savedGraph));
+    await queryClient.invalidateQueries({ queryKey: ['flows'] });
   };
 
   const toggleActive = async (flow: FlowDraft) => {
-    await db.flowDrafts.put({ ...flow, isActive: !flow.isActive });
-    loadFlows();
+    await activateFlowMutation.mutateAsync(flow);
   };
 
   const handleSort = (key: SortKey) => {

@@ -8,4 +8,5 @@ public class OfferDto
     public required string DigitalPlanDetails { get; set; }
     public required string WellnessKitDetails { get; set; }
     public string? Why { get; set; }
+    public DateTime UpdatedAt { get; set; }
 }

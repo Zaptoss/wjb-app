@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { NodePalette } from '../features/flows/components/sidebar/NodePalette';
+import { createOffer, deleteOffer, fetchOffers, updateOffer } from '../features/offers/api/offersApi';
 
-const STORAGE_KEY = 'wjb-admin-offers';
 const PAGE_SIZE = 8;
 
 interface OfferDto {
@@ -50,14 +51,6 @@ const OFFER_FIELDS: Array<{
   },
 ];
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
-}
-
-function readString(value: unknown) {
-  return typeof value === 'string' ? value : '';
-}
-
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-US', {
     month: 'short',
@@ -68,45 +61,10 @@ function formatDate(iso: string) {
   });
 }
 
-function normalizeOffer(value: unknown): OfferDto | null {
-  if (!isRecord(value)) return null;
-
-  const name = readString(value.name).trim();
-  if (!name) return null;
-
-  return {
-    id: readString(value.id) || crypto.randomUUID(),
-    name,
-    description: readString(value.description) || readString(value.tagline),
-    digitalPlanDetails: readString(value.digitalPlanDetails),
-    wellnessKitDetails: readString(value.wellnessKitDetails),
-    why: readString(value.why) || readString(value.category),
-    updatedAt: readString(value.updatedAt) || new Date().toISOString(),
-  };
-}
-
-function loadOffers(): OfferDto[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
-
-    const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-
-    return parsed.map(normalizeOffer).filter((offer): offer is OfferDto => offer !== null);
-  } catch {
-    return [];
-  }
-}
-
-function saveOffers(offers: OfferDto[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(offers));
-}
-
 interface OfferModalProps {
   offer?: OfferDto | null;
   onClose: () => void;
-  onSave: (offer: OfferDto) => void;
+  onSave: (offer: OfferDto) => void | Promise<void>;
 }
 
 function OfferModal({ offer, onClose, onSave }: OfferModalProps) {
@@ -125,7 +83,7 @@ function OfferModal({ offer, onClose, onSave }: OfferModalProps) {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const nextOffer: OfferDto = {
@@ -139,7 +97,7 @@ function OfferModal({ offer, onClose, onSave }: OfferModalProps) {
     };
 
     if (!nextOffer.name) return;
-    onSave(nextOffer);
+    await onSave(nextOffer);
   };
 
   return (
@@ -409,33 +367,63 @@ function SortIcon({ active, direction }: { active: boolean; direction: 'asc' | '
 }
 
 export default function OffersPage() {
-  const [offers, setOffers] = useState<OfferDto[]>(loadOffers);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [sortKey, setSortKey] = useState<SortKey>('updatedAt');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const [modal, setModal] = useState<{ open: boolean; offer?: OfferDto | null }>({ open: false });
+  const queryClient = useQueryClient();
+  const offersQuery = useQuery({
+    queryKey: ['offers'],
+    queryFn: fetchOffers,
+  });
 
-  useEffect(() => {
-    saveOffers(offers);
-  }, [offers]);
+  const createOfferMutation = useMutation({
+    mutationFn: (offer: OfferDto) => createOffer({
+      name: offer.name,
+      description: offer.description,
+      digitalPlanDetails: offer.digitalPlanDetails,
+      wellnessKitDetails: offer.wellnessKitDetails,
+      why: offer.why,
+    }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['offers'] });
+    },
+  });
 
-  const handleSave = (offer: OfferDto) => {
-    setOffers((prev) => {
-      const idx = prev.findIndex((item) => item.id === offer.id);
-      if (idx >= 0) {
-        const next = [...prev];
-        next[idx] = offer;
-        return next;
-      }
+  const updateOfferMutation = useMutation({
+    mutationFn: (offer: OfferDto) => updateOffer(offer.id, {
+      name: offer.name,
+      description: offer.description,
+      digitalPlanDetails: offer.digitalPlanDetails,
+      wellnessKitDetails: offer.wellnessKitDetails,
+      why: offer.why,
+    }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['offers'] });
+    },
+  });
 
-      return [...prev, offer];
-    });
+  const deleteOfferMutation = useMutation({
+    mutationFn: deleteOffer,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['offers'] });
+    },
+  });
+
+  const offers = offersQuery.data ?? [];
+
+  const handleSave = async (offer: OfferDto) => {
+    if (modal.offer) {
+      await updateOfferMutation.mutateAsync(offer);
+    } else {
+      await createOfferMutation.mutateAsync(offer);
+    }
     setModal({ open: false });
   };
 
-  const handleDelete = (id: string) => {
-    setOffers((prev) => prev.filter((offer) => offer.id !== id));
+  const handleDelete = async (id: string) => {
+    await deleteOfferMutation.mutateAsync(id);
   };
 
   const handleSort = (key: SortKey) => {

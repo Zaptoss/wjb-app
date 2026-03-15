@@ -12,6 +12,10 @@ public class Node : BaseEntity
     public string? Body { get; set; }
     public InputType? InputType { get; set; }
     public string? AttributeKey { get; set; }
+    public string? ImageUrl { get; set; }
+    public Guid? OfferId { get; set; }
+    public double PositionX { get; set; }
+    public double PositionY { get; set; }
 
     public Flow? Flow { get; set; }
     public ICollection<NodeOption> Options { get; set; } = [];

@@ -23,7 +23,27 @@ public enum ConditionOperator
     Gt,
 
     /// <summary>
+    /// Greater than or equals
+    /// </summary>
+    Gte,
+
+    /// <summary>
     /// Lower then
     /// </summary>
-    Lt
+    Lt,
+
+    /// <summary>
+    /// Lower than or equals
+    /// </summary>
+    Lte,
+
+    /// <summary>
+    /// Not in range
+    /// </summary>
+    Nin,
+
+    /// <summary>
+    /// Contains substring
+    /// </summary>
+    Contains
 }
