@@ -12,3 +12,4 @@ resources:
   - user-backend
 #  - gateway
   - flux-image-automation
+  - migration-job.yaml

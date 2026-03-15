@@ -1,0 +1,21 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: migration
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      restartPolicy: Never
+
+      containers:
+        - name: migration
+          image: europe-central2-docker.pkg.dev/int20h-2026/wjb/migration:v0.0.0 # {"$imagepolicy": "wjb:migration"}
+          env:
+            - name: ASPNETCORE_URLS
+              value: "http://0.0.0.0:8080"
+            - name: ConnectionStrings__LocalhostConnection
+              valueFrom:
+                secretKeyRef:
+                  name: wjb-api-secret
+                  key: CONNECTION_STRING
