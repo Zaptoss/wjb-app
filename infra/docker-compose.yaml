@@ -72,7 +72,9 @@ services:
       - "8010:8080"
     environment:
       ConnectionStrings__LocalhostConnection: "Host=wjb-postgres;Port=5432;Database=wjb;Username=wjb;Password=wjb"
-      Jwt__Secret: "supersecret"
+      Jwt__Secret: "jwt-secret-admin-token-wellness-builder"
+      DefaultAdmin__Email: "example@admin.com"
+      DefaultAdmin__PasswordHash: "$2a$11$2mUE6XkdfUarfAcxvLygseQk2meWKoJ8/lm4ONzmjUSfdCE3LcuLC"
     depends_on:
       postgres:
         condition: service_healthy
@@ -94,7 +96,7 @@ services:
       - "8011:8080"
     environment:
       ConnectionStrings__LocalhostConnection: "Host=wjb-postgres;Port=5432;Database=wjb;Username=wjb;Password=wjb"
-      Jwt__Secret: "supersecret"
+      Jwt__Secret: "jwt-secret-admin-token-wellness-builder"
     depends_on:
       postgres:
         condition: service_healthy
