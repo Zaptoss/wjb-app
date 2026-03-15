@@ -14,18 +14,23 @@ export default function InfoPageNode({
   onContinue,
   isSubmitting,
 }: InfoPageNodeProps) {
+  const contentLength = node.title.length + (node.description?.length ?? 0);
+
   return (
     <div>
-      {node.imageUrl ? (
-        <NodeImage src={node.imageUrl} />
-      ) : (
-        <ZenIllustration />
-      )}
-
       <div className="mb-8 text-center">
         <h1 className="text-[28px] font-bold leading-tight tracking-tight mb-3 text-[var(--text-main)]">
           {node.title}
         </h1>
+        {node.imageUrl ? (
+          <NodeImage
+            src={node.imageUrl}
+            alt={node.title}
+            contentLength={contentLength}
+          />
+        ) : (
+          <ZenIllustration />
+        )}
         {node.description && (
           <p className="text-base font-medium text-[var(--text-sub)] leading-relaxed px-2.5">
             {node.description}

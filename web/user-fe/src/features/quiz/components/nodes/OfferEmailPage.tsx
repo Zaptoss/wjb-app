@@ -14,6 +14,7 @@ export default function OfferEmailPage({ offer }: OfferEmailPageProps) {
   const [email, setEmail] = useState('');
   const [submittedEmail, setSubmittedEmail] = useState<string | null>(null);
   const [touched, setTouched] = useState(false);
+  const contentLength = offer.name.length + offer.description.length;
 
   const normalizedEmail = email.trim();
   const isValidEmail = useMemo(
@@ -35,12 +36,6 @@ export default function OfferEmailPage({ offer }: OfferEmailPageProps) {
 
   return (
     <div className="pb-2">
-      {offer.imageUrl ? (
-        <NodeImage src={offer.imageUrl} />
-      ) : (
-        <ZenIllustration />
-      )}
-
       <div className="mb-8 text-center">
         <p className="text-sm font-bold uppercase tracking-[0.24em] text-[var(--accent)] mb-3">
           Email Step
@@ -48,6 +43,15 @@ export default function OfferEmailPage({ offer }: OfferEmailPageProps) {
         <h1 className="text-[28px] font-bold leading-tight tracking-tight mb-3 text-[var(--text-main)]">
           Send {offer.name} to your inbox
         </h1>
+        {offer.imageUrl ? (
+          <NodeImage
+            src={offer.imageUrl}
+            alt={offer.name}
+            contentLength={contentLength}
+          />
+        ) : (
+          <ZenIllustration />
+        )}
         <p className="text-base font-medium text-[var(--text-sub)] leading-relaxed px-2.5">
           Enter your email and we will deliver the details for this selected offer.
         </p>

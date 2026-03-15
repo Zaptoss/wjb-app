@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import type { AnswerValue, SessionNode } from '../../types';
 import OptionCard from '../ui/OptionCard';
 import NodeImage from '../ui/NodeImage';
-import ZenIllustration from '../ui/ZenIllustration';
 
 interface SingleChoiceNodeProps {
   node: SessionNode;
@@ -18,6 +17,7 @@ export default function SingleChoiceNode({
   isSubmitting,
 }: SingleChoiceNodeProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const contentLength = node.title.length + (node.description?.length ?? 0);
 
   // Pre-fill from previous answer when revisiting
   useEffect(() => {
@@ -37,16 +37,17 @@ export default function SingleChoiceNode({
 
   return (
     <div>
-      {node.imageUrl ? (
-        <NodeImage src={node.imageUrl} />
-      ) : (
-        <ZenIllustration />
-      )}
-
       <div className="mb-8 text-center">
         <h1 className="text-[28px] font-bold leading-tight tracking-tight mb-3 text-[var(--text-main)]">
           {node.title}
         </h1>
+        {node.imageUrl && (
+          <NodeImage
+            src={node.imageUrl}
+            alt={node.title}
+            contentLength={contentLength}
+          />
+        )}
         {node.description && (
           <p className="text-base font-medium text-[var(--text-sub)] leading-relaxed px-2.5">
             {node.description}
