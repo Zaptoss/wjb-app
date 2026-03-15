@@ -68,10 +68,15 @@ interface PaletteItemProps {
   iconBg: string;
   iconColor: string;
   icon: React.ReactNode;
+  onQuickAdd?: (type: string) => void;
 }
 
-function PaletteItem({ type, label, iconBg, iconColor, icon }: PaletteItemProps) {
+function PaletteItem({ type, label, iconBg, iconColor, icon, onQuickAdd }: PaletteItemProps) {
   const onDragStart = (e: React.DragEvent) => {
+    // React Flow examples rely on a standard MIME type here.
+    // Keeping both keys makes external drag-and-drop more reliable across browsers.
+    e.dataTransfer.setData('application/reactflow', type);
+    e.dataTransfer.setData('text/plain', type);
     e.dataTransfer.setData('nodeType', type);
     e.dataTransfer.effectAllowed = 'move';
   };
@@ -80,6 +85,7 @@ function PaletteItem({ type, label, iconBg, iconColor, icon }: PaletteItemProps)
     <div
       draggable
       onDragStart={onDragStart}
+      onClick={() => onQuickAdd?.(type)}
       className="group flex cursor-grab items-center gap-3 rounded-lg px-2 py-2 transition-colors active:cursor-grabbing"
       onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--bg-surface-hover)')}
       onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
@@ -121,7 +127,11 @@ function NavItem({ label, icon, active, onClick }: NavItemProps) {
   );
 }
 
-export function NodePalette() {
+interface NodePaletteProps {
+  onQuickAddNode?: (type: string) => void;
+}
+
+export function NodePalette({ onQuickAddNode }: NodePaletteProps = {}) {
   const navigate = useNavigate();
   const location = useLocation();
   const user = useAuthStore((state) => state.user);
@@ -185,7 +195,7 @@ export function NodePalette() {
         <div style={{ padding: '16px 16px 8px' }}>
           <p className="mb-2 pl-2 text-[11px] font-medium uppercase tracking-widest" style={{ color: 'var(--text-tertiary)' }}>Content Nodes</p>
           {CONTENT_NODES.map((item) => (
-            <PaletteItem key={item.type} {...item} />
+            <PaletteItem key={item.type} {...item} onQuickAdd={onQuickAddNode} />
           ))}
         </div>
       )}
