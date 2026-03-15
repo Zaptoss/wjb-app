@@ -61,16 +61,26 @@ public class SessionService(
 
         if (node.NodeType == NodeType.Question && node.AttributeKey is not null)
         {
-            var answer = new Answer
-            {
-                Id = Guid.NewGuid(),
-                SessionId = sessionId,
-                NodeId = request.NodeId,
-                AttributeKey = node.AttributeKey,
-                Value = request.Value
-            };
+            var existingAnswer = session.Answers
+                .FirstOrDefault(a => a.AttributeKey == node.AttributeKey);
 
-            db.Answers.Add(answer);
+            if (existingAnswer is null)
+            {
+                db.Answers.Add(new Answer
+                {
+                    Id = Guid.NewGuid(),
+                    SessionId = sessionId,
+                    NodeId = request.NodeId,
+                    AttributeKey = node.AttributeKey,
+                    Value = request.Value
+                });
+            }
+            else
+            {
+                existingAnswer.NodeId = request.NodeId;
+                existingAnswer.Value = request.Value;
+            }
+
             await db.SaveChangesAsync();
 
             await db.Entry(session).Collection(s => s.Answers).LoadAsync();
@@ -78,7 +88,14 @@ public class SessionService(
 
         var context = session.Answers
             .Where(a => !string.IsNullOrEmpty(a.AttributeKey))
-            .ToDictionary(a => a.AttributeKey, a => a.Value);
+            .GroupBy(a => a.AttributeKey)
+            .ToDictionary(
+                group => group.Key,
+                group => group
+                    .OrderByDescending(a => a.UpdatedAt)
+                    .ThenByDescending(a => a.CreatedAt)
+                    .First()
+                    .Value);
 
         var nextNode = await ruleEngine.GetNextNodeAsync(request.NodeId, context);
 
@@ -104,16 +121,13 @@ public class SessionService(
                 throw new KeyNotFoundException($"Offer {nextNode.OfferId.Value} not found");
 
             session.CompletedAt = DateTime.UtcNow;
-            session.AssignedOffers =
-            [
-                new SessionOffer
-                {
-                    Id = Guid.NewGuid(),
-                    SessionId = sessionId,
-                    OfferId = offer.Id,
-                    AssignedAt = DateTime.UtcNow
-                }
-            ];
+            db.SessionOffers.Add(new SessionOffer
+            {
+                Id = Guid.NewGuid(),
+                SessionId = sessionId,
+                OfferId = offer.Id,
+                AssignedAt = DateTime.UtcNow
+            });
 
             await db.SaveChangesAsync();
 

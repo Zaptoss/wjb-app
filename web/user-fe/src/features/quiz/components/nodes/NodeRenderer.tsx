@@ -12,6 +12,21 @@ import { useQuizStore } from '../../store/quizStore';
 import { useSubmitAnswer } from '../../api/useQuizMutations';
 import type { OfferData } from '../../types';
 
+function serializeAnswerValue(answer: AnswerValue, optionMap: Map<string, string>) {
+  switch (answer.type) {
+    case 'single_choice':
+      return optionMap.get(answer.optionId) ?? answer.optionId;
+    case 'multi_choice':
+      return JSON.stringify(
+        answer.optionIds.map((optionId) => optionMap.get(optionId) ?? optionId),
+      );
+    case 'input':
+      return answer.value;
+    default:
+      return '';
+  }
+}
+
 export default function NodeRenderer() {
   const {
     currentNode,
@@ -74,6 +89,10 @@ export default function NodeRenderer() {
     (answer: AnswerValue) => {
       if (!currentNode || !sessionId) return;
 
+      const optionMap = new Map(
+        (currentNode.options ?? []).map((option) => [option.id, option.value]),
+      );
+
       // If not at edge and answer unchanged, navigate forward without API call
       if (!isAtEdge()) {
         const currentEntry = history[currentIndex];
@@ -104,9 +123,21 @@ export default function NodeRenderer() {
         useQuizStore.setState({ history: historyClone });
       }
 
-      submitAnswerMutation.mutate({ nodeId: currentNode.id, answer });
+      submitAnswerMutation.mutate({
+        nodeId: currentNode.id,
+        value: serializeAnswerValue(answer, optionMap),
+        historyAnswer: answer,
+      });
     },
-    [currentNode, sessionId, isAtEdge, history, currentIndex, truncateFromCurrent, submitAnswerMutation],
+    [
+      currentNode,
+      sessionId,
+      isAtEdge,
+      history,
+      currentIndex,
+      truncateFromCurrent,
+      submitAnswerMutation,
+    ],
   );
 
   const handleInfoContinue = useCallback(() => {
@@ -128,7 +159,8 @@ export default function NodeRenderer() {
 
     submitAnswerMutation.mutate({
       nodeId: currentNode.id,
-      answer: { type: 'single_choice', optionId: '__info_continue__' },
+      value: '',
+      historyAnswer: null,
     });
   }, [currentNode, sessionId, isAtEdge, currentIndex, submitAnswerMutation]);
 
@@ -152,10 +184,7 @@ export default function NodeRenderer() {
           {selectedOffer ? (
             <OfferEmailPage offer={selectedOffer} />
           ) : (
-            <OfferPage
-              offers={offers}
-              onSelectOffer={setSelectedOffer}
-            />
+            <OfferPage offers={offers} onSelectOffer={setSelectedOffer} />
           )}
         </div>
       </QuizLayout>
@@ -212,7 +241,7 @@ export default function NodeRenderer() {
     <QuizLayout progress={progress} canGoBack={canGoBack} onBack={goBack}>
       <div key={`${currentNode.id}-${currentIndex}`} className={animClass}>
         {error && (
-          <div className="mb-4 p-4 rounded-2xl bg-red-50 text-red-600 text-sm font-medium text-center">
+          <div className="mb-4 rounded-2xl bg-red-50 p-4 text-center text-sm font-medium text-red-600">
             {error}
           </div>
         )}
