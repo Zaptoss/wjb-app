@@ -12,15 +12,32 @@ spec:
       labels:
         app: web-admin
     spec:
+      volumes:
+        - name: nginx-conf
+          configMap:
+            name: web-admin
       imagePullSecrets:
         - name: gar-pull
       containers:
         - name: web-admin
           image: europe-central2-docker.pkg.dev/int20h-2026/wjb/web-admin:v0.2.0 # {"$imagepolicy": "wjb:admin-frontend"}
           imagePullPolicy: IfNotPresent
+          env:
+            - name: APP_API_URL
+              value: ""
+            - name: APP_ENV
+              value: "production"
+            - name: APP_VERSION
+              value: "0.2.0"
+            - name: APP_FEATURE_FLAGS
+              value: '{"newDashboard":false}'
           ports:
             - name: http
               containerPort: 80
+          volumeMounts:
+            - name: nginx-conf
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
           resources:
             requests:
               cpu: 50m

@@ -1,0 +1,96 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: web-admin
+data:
+  nginx.conf: |
+    user  nginx;
+    worker_processes  auto;
+
+    error_log  /var/log/nginx/error.log warn;
+    pid        /var/run/nginx.pid;
+
+    events {
+        worker_connections  1024;
+    }
+
+    http {
+        include       /etc/nginx/mime.types;
+        default_type  application/octet-stream;
+
+        access_log  /var/log/nginx/access.log;
+
+        sendfile        on;
+        keepalive_timeout  65;
+        server_tokens   off;
+
+        gzip             on;
+        gzip_vary        on;
+        gzip_comp_level  6;
+        gzip_min_length  1000;
+        gzip_types       text/plain text/css application/javascript application/json image/svg+xml;
+
+        server {
+            listen       80;
+            server_name  _;
+
+            root  /usr/share/nginx/html;
+            index index.html;
+            # WARNING: This configuration allows all origins and is a potential security risk.
+            # Use specific domains in production where possible.
+
+            add_header 'Access-Control-Allow-Origin' '*' always;
+            add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, DELETE, OPTIONS' always;
+            add_header 'Access-Control-Allow-Headers' 'Accept, Authorization, Cache-Control, Content-Type, DNT, If-Modified-Since, Keep-Alive, Origin, User-Agent, X-Requested-With' always;
+            # Optional: Add other headers if your application requires them
+            # add_header 'Access-Control-Expose-Headers' 'Content-Length, Content-Range';
+            # Security headers
+            add_header X-Frame-Options         "DENY"                            always;
+            add_header X-Content-Type-Options  "nosniff"                         always;
+            add_header Referrer-Policy         "strict-origin-when-cross-origin" always;
+            # HSTS: uncomment only when this container is always behind HTTPS termination
+            # add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+            # CSP: add your API domain to connect-src once known
+            # add_header Content-Security-Policy "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self';" always;
+
+            # config.js is generated at container startup — never cache it
+            location = /config.js {
+                add_header Cache-Control "no-store" always;
+                try_files $uri =404;
+            }
+
+            # Hashed assets (e.g. main.a1b2c3.js) are immutable — cache 1 year
+            # location ~* \.(js|css|woff2?|ttf|svg|png|jpg|jpeg|gif|ico|webp)$ {
+            #     expires 1y;
+            #     add_header Cache-Control "public, max-age=31536000, immutable" always;
+            #     access_log off;
+            # }
+
+            # Reverse-proxy API calls to the backend (avoids CORS)
+            location /api/ {
+                proxy_pass         http://api-admin:80;
+                proxy_http_version 1.1;
+                proxy_set_header   Host              $host;
+                proxy_set_header   X-Real-IP         $remote_addr;
+                proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+                proxy_set_header   X-Forwarded-Proto $scheme;
+            }
+
+            # SPA — all routes go to index.html
+            location / {
+                try_files $uri $uri/ /index.html;
+            }
+
+            # Health check for load balancers / Docker / K8s
+            location = /healthz {
+                access_log off;
+                return 200 "OK\n";
+                add_header Content-Type text/plain;
+            }
+
+            # Block dotfiles (.env, .git, etc.) that might leak into dist/
+            location ~ /\. {
+                return 404;
+            }
+        }
+    }

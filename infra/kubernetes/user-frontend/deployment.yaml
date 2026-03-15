@@ -12,6 +12,10 @@ spec:
       labels:
         app: web-user
     spec:
+      volumes:
+        - name: nginx-conf
+          configMap:
+            name: web-user
       imagePullSecrets:
         - name: gar-pull
       containers:
@@ -21,6 +25,19 @@ spec:
           ports:
             - name: http
               containerPort: 80
+          volumeMounts:
+            - name: nginx-conf
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+          env:
+            - name: APP_API_URL
+              value: ""
+            - name: APP_ENV
+              value: "production"
+            - name: APP_VERSION
+              value: "0.2.0"
+            - name: APP_FEATURE_FLAGS
+              value: '{"newDashboard":false}'
           resources:
             requests:
               cpu: 50m
