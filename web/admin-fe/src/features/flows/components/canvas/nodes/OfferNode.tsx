@@ -1,14 +1,15 @@
-import { useStoredOffers } from '../../../../offers/storage';
+import { useQuery } from '@tanstack/react-query';
 import { Handle, Position, type NodeProps, type Node } from '@xyflow/react';
 import type { OfferNodeData } from '../../../types';
 import { useFlowStore } from '../../../store/flowStore';
+import { fetchOffers } from '../../../../offers/api/offersApi';
 
 type OfferNodeType = Node<OfferNodeData, 'offer'>;
 
 export function OfferNode({ id, data, selected }: NodeProps<OfferNodeType>) {
   const setSelectedNodeId = useFlowStore((s) => s.setSelectedNodeId);
-  const offers = useStoredOffers();
-  const offer = offers.find((item) => item.id === data.offerId);
+  const offersQuery = useQuery({ queryKey: ['offers'], queryFn: fetchOffers });
+  const offer = offersQuery.data?.find((item) => item.id === data.offerId);
 
   return (
     <div
