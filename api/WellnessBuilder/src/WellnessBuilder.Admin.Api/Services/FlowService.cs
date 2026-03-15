@@ -47,7 +47,7 @@ public class FlowService(AppDbContext db) : IFlowService
         {
             Id = Guid.NewGuid(),
             Title = title,
-            Description = request.Description?.Trim(),
+            Description = request.Description?.Trim() ?? "",
             IsActive = false
         };
 
@@ -69,7 +69,7 @@ public class FlowService(AppDbContext db) : IFlowService
             throw new InvalidOperationException("Flow title is required.");
 
         flow.Title = title;
-        flow.Description = request.Description?.Trim();
+        flow.Description = request.Description?.Trim() ?? "";
 
         await db.SaveChangesAsync();
 
@@ -81,10 +81,9 @@ public class FlowService(AppDbContext db) : IFlowService
         var flow = await LoadGraphAsync(id);
 
         ValidateGraph(request);
-        await ValidateOffersAsync(request.Nodes);
 
         flow.Title = request.Title.Trim();
-        flow.Description = request.Description?.Trim();
+        flow.Description = request.Description?.Trim() ?? "";
         flow.UpdatedAt = DateTime.UtcNow;
 
         var requestNodeIds = request.Nodes.Select(n => n.Id).ToHashSet();
@@ -115,11 +114,13 @@ public class FlowService(AppDbContext db) : IFlowService
             {
                 db.NodeOptions.RemoveRange(existingNode.Options);
                 UpdateNode(existingNode, nodeRequest);
+                var newOptions = BuildNodeOptions(nodeRequest.Options, existingNode.Id);
+                db.NodeOptions.AddRange(newOptions);
             }
             else
             {
                 var newNode = BuildNode(flow.Id, nodeRequest);
-                flow.Nodes.Add(newNode);
+                db.Nodes.Add(newNode);
                 existingNodes[newNode.Id] = newNode;
             }
         }
@@ -130,13 +131,22 @@ public class FlowService(AppDbContext db) : IFlowService
         {
             if (existingEdges.TryGetValue(edgeRequest.Id, out var existingEdge))
             {
+                foreach (var group in existingEdge.ConditionGroups)
+                    db.EdgeConditions.RemoveRange(group.Conditions);
                 db.EdgeConditionGroups.RemoveRange(existingEdge.ConditionGroups);
                 UpdateEdge(existingEdge, flow.Id, edgeRequest, priorityMap[edgeRequest.Id]);
+                var newGroups = BuildConditionGroups(edgeRequest.Conditions);
+                foreach (var group in newGroups)
+                {
+                    group.EdgeId = existingEdge.Id;
+                    db.EdgeConditionGroups.Add(group);
+                    db.EdgeConditions.AddRange(group.Conditions);
+                }
             }
             else
             {
                 var newEdge = BuildEdge(flow.Id, edgeRequest, priorityMap[edgeRequest.Id]);
-                flow.Edges.Add(newEdge);
+                db.Edges.Add(newEdge);
             }
         }
 
@@ -148,14 +158,24 @@ public class FlowService(AppDbContext db) : IFlowService
 
     public async Task DeleteAsync(Guid id)
     {
-        var flow = await db.Flows.FirstOrDefaultAsync(f => f.Id == id);
-
-        if (flow is null)
-            throw new KeyNotFoundException($"Flow {id} not found");
+        var flow = await LoadGraphAsync(id);
 
         if (flow.IsActive)
             throw new InvalidOperationException("Cannot delete an active flow. Deactivate it first.");
 
+        foreach (var edge in flow.Edges)
+        {
+            db.EdgeConditionGroups.RemoveRange(edge.ConditionGroups);
+        }
+
+        db.Edges.RemoveRange(flow.Edges);
+
+        foreach (var node in flow.Nodes)
+        {
+            db.NodeOptions.RemoveRange(node.Options);
+        }
+
+        db.Nodes.RemoveRange(flow.Nodes);
         db.Flows.Remove(flow);
         await db.SaveChangesAsync();
     }
@@ -167,10 +187,10 @@ public class FlowService(AppDbContext db) : IFlowService
         if (hasActiveFlow)
             throw new InvalidOperationException("Another flow is already active. Deactivate it first.");
 
-        var flow = await db.Flows.FirstOrDefaultAsync(f => f.Id == id);
+        var flow = await LoadGraphAsync(id);
 
-        if (flow is null)
-            throw new KeyNotFoundException($"Flow {id} not found");
+        ValidateFlowForActivation(flow);
+        await ValidateOffersForActivationAsync(flow.Nodes);
 
         flow.IsActive = true;
         await db.SaveChangesAsync();
@@ -206,6 +226,29 @@ public class FlowService(AppDbContext db) : IFlowService
         return flow;
     }
 
+    private async Task ValidateOffersForActivationAsync(IEnumerable<Node> nodes)
+    {
+        var offerIds = nodes
+            .Where(n => n.NodeType == NodeType.Offer)
+            .Select(n => n.OfferId)
+            .Where(id => id.HasValue)
+            .Select(id => id!.Value)
+            .Distinct()
+            .ToList();
+
+        if (offerIds.Count == 0)
+            return;
+
+        var existing = await db.Offers
+            .Where(o => offerIds.Contains(o.Id))
+            .Select(o => o.Id)
+            .ToListAsync();
+
+        var missing = offerIds.Except(existing).ToList();
+        if (missing.Count > 0)
+            throw new InvalidOperationException($"Offer(s) not found: {string.Join(", ", missing)}");
+    }
+
     private async Task ValidateOffersAsync(IEnumerable<SaveFlowGraphNodeRequest> nodes)
     {
         var offerIds = nodes
@@ -234,9 +277,6 @@ public class FlowService(AppDbContext db) : IFlowService
         if (string.IsNullOrWhiteSpace(request.Title))
             throw new InvalidOperationException("Flow title is required.");
 
-        if (request.Nodes.Count == 0)
-            throw new InvalidOperationException("Flow must contain at least one node.");
-
         var duplicateNodeId = request.Nodes
             .GroupBy(node => node.Id)
             .FirstOrDefault(group => group.Key == Guid.Empty || group.Count() > 1);
@@ -249,82 +289,96 @@ public class FlowService(AppDbContext db) : IFlowService
         if (duplicateEdgeId is not null)
             throw new InvalidOperationException("Edge ids must be unique non-empty GUIDs.");
 
-        var nodeMap = request.Nodes.ToDictionary(n => n.Id);
+        var nodeIds = request.Nodes.Select(n => n.Id).ToHashSet();
 
         foreach (var edge in request.Edges)
         {
-            if (!nodeMap.ContainsKey(edge.SourceNodeId) || !nodeMap.ContainsKey(edge.TargetNodeId))
+            if (!nodeIds.Contains(edge.SourceNodeId) || !nodeIds.Contains(edge.TargetNodeId))
                 throw new InvalidOperationException("Each edge must connect existing nodes.");
 
             if (edge.SourceNodeId == edge.TargetNodeId)
                 throw new InvalidOperationException("Edge cannot connect a node to itself.");
-
-            foreach (var condition in edge.Conditions)
-            {
-                if (condition.Id == Guid.Empty)
-                    throw new InvalidOperationException("Condition ids must be non-empty GUIDs.");
-
-                if (string.IsNullOrWhiteSpace(condition.AttributeKey) || string.IsNullOrWhiteSpace(condition.Value))
-                    throw new InvalidOperationException("Each condition must have an attribute key and value.");
-
-                _ = ParseConditionOperator(condition.Operator);
-            }
         }
-
-        var incomingTargets = request.Edges.Select(e => e.TargetNodeId).ToHashSet();
-        var startNodes = request.Nodes.Where(node => !incomingTargets.Contains(node.Id)).ToList();
-
-        if (startNodes.Count != 1)
-            throw new InvalidOperationException("Flow must have exactly one start node.");
-
-        if (ParseNodeType(startNodes[0].Type) == NodeType.Offer)
-            throw new InvalidOperationException("Flow cannot start with an offer node.");
-
-        var outgoingMap = request.Edges
-            .GroupBy(e => e.SourceNodeId)
-            .ToDictionary(group => group.Key, group => group.ToList());
 
         foreach (var node in request.Nodes)
         {
-            var nodeType = ParseNodeType(node.Type);
+            _ = ParseNodeType(node.Type);
+        }
+    }
 
-            if (string.IsNullOrWhiteSpace(node.Title))
-                throw new InvalidOperationException($"Node {node.Id} must have a title.");
+    private static void ValidateFlowForActivation(Flow flow)
+    {
+        if (flow.Nodes.Count == 0)
+            throw new InvalidOperationException("Cannot activate an empty flow. Add at least one node.");
 
-            if (nodeType == NodeType.Question)
-            {
-                if (string.IsNullOrWhiteSpace(node.Body))
-                    throw new InvalidOperationException($"Question node {node.Id} must have body text.");
+        var incomingTargets = flow.Edges.Select(e => e.ToNodeId).ToHashSet();
+        var startNodes = flow.Nodes.Where(n => !incomingTargets.Contains(n.Id)).ToList();
 
-                if (string.IsNullOrWhiteSpace(node.AttributeKey))
-                    throw new InvalidOperationException($"Question node {node.Id} must have an attribute key.");
+        if (startNodes.Count != 1)
+            throw new InvalidOperationException("Flow must have exactly one start node (a node with no incoming edges).");
 
-                var inputType = ParseInputType(node.InputType);
-                if (inputType is null)
-                    throw new InvalidOperationException($"Question node {node.Id} must have an input type.");
+        if (startNodes[0].NodeType == NodeType.Offer)
+            throw new InvalidOperationException("Flow cannot start with an offer node.");
 
-                if (inputType != InputType.Text && inputType != InputType.Number && node.Options.Count == 0)
-                    throw new InvalidOperationException($"Choice question node {node.Id} must have at least one option.");
+        var outgoingSources = flow.Edges.Select(e => e.FromNodeId).ToHashSet();
 
-                if (node.Options.Any(option => string.IsNullOrWhiteSpace(option.Label) || string.IsNullOrWhiteSpace(option.Value)))
-                    throw new InvalidOperationException($"Question node {node.Id} has an option with empty label or value.");
-            }
+        foreach (var node in flow.Nodes)
+        {
+            var isTerminal = !outgoingSources.Contains(node.Id);
 
-            if (nodeType == NodeType.Offer)
+            if (isTerminal && node.NodeType != NodeType.Offer)
+                throw new InvalidOperationException(
+                    $"Node \"{node.Title}\" is a dead end — all paths must lead to an offer node.");
+
+            if (node.NodeType == NodeType.Offer)
             {
                 if (node.OfferId is null || node.OfferId == Guid.Empty)
-                    throw new InvalidOperationException($"Offer node {node.Id} must reference an offer.");
+                    throw new InvalidOperationException(
+                        $"Offer node \"{node.Title}\" has no offer selected.");
 
-                if (outgoingMap.TryGetValue(node.Id, out var outgoingOfferEdges) && outgoingOfferEdges.Count > 0)
-                    throw new InvalidOperationException($"Offer node {node.Id} cannot have outgoing edges.");
+                if (outgoingSources.Contains(node.Id))
+                    throw new InvalidOperationException(
+                        $"Offer node \"{node.Title}\" cannot have outgoing edges.");
+            }
+
+            if (node.NodeType == NodeType.Question)
+            {
+                if (string.IsNullOrWhiteSpace(node.AttributeKey))
+                    throw new InvalidOperationException(
+                        $"Question node \"{node.Title}\" is missing an attribute key.");
+
+                if (node.InputType is null)
+                    throw new InvalidOperationException(
+                        $"Question node \"{node.Title}\" is missing an input type.");
             }
         }
 
-        foreach (var terminalNode in request.Nodes.Where(node => !outgoingMap.ContainsKey(node.Id)))
+        // Verify all nodes are reachable from the start node
+        var startNode = startNodes[0];
+        var adjacency = flow.Edges
+            .GroupBy(e => e.FromNodeId)
+            .ToDictionary(g => g.Key, g => g.Select(e => e.ToNodeId).ToList());
+
+        var visited = new HashSet<Guid>();
+        var queue = new Queue<Guid>();
+        queue.Enqueue(startNode.Id);
+        visited.Add(startNode.Id);
+
+        while (queue.Count > 0)
         {
-            if (ParseNodeType(terminalNode.Type) != NodeType.Offer)
-                throw new InvalidOperationException($"Terminal node {terminalNode.Id} must be an offer node.");
+            var current = queue.Dequeue();
+            if (!adjacency.TryGetValue(current, out var neighbors)) continue;
+            foreach (var neighbor in neighbors)
+            {
+                if (visited.Add(neighbor))
+                    queue.Enqueue(neighbor);
+            }
         }
+
+        var unreachable = flow.Nodes.Where(n => !visited.Contains(n.Id)).ToList();
+        if (unreachable.Count > 0)
+            throw new InvalidOperationException(
+                $"Node(s) not reachable from start: {string.Join(", ", unreachable.Select(n => $"\"{n.Title}\""))}. All nodes must be connected.");
     }
 
     private static Dictionary<Guid, int> BuildPriorityMap(IEnumerable<SaveFlowGraphEdgeRequest> edges)
@@ -375,9 +429,6 @@ public class FlowService(AppDbContext db) : IFlowService
         node.OfferId = request.OfferId;
         node.PositionX = request.PositionX;
         node.PositionY = request.PositionY;
-
-        node.Options.Clear();
-        node.Options = BuildNodeOptions(request.Options, node.Id);
     }
 
     private static List<NodeOption> BuildNodeOptions(IEnumerable<CreateNodeOptionRequest> options, Guid nodeId)
@@ -413,7 +464,6 @@ public class FlowService(AppDbContext db) : IFlowService
         edge.FromNodeId = request.SourceNodeId;
         edge.ToNodeId = request.TargetNodeId;
         edge.Priority = priority;
-        edge.ConditionGroups = BuildConditionGroups(request.Conditions);
     }
 
     private static List<EdgeConditionGroup> BuildConditionGroups(IEnumerable<SaveFlowGraphConditionRequest> conditions)
@@ -429,7 +479,7 @@ public class FlowService(AppDbContext db) : IFlowService
                 Id = Guid.NewGuid(),
                 Conditions = items.Select(condition => new EdgeCondition
                 {
-                    Id = condition.Id,
+                    Id = Guid.NewGuid(),
                     AttributeKey = condition.AttributeKey.Trim(),
                     Operator = ParseConditionOperator(condition.Operator),
                     Value = condition.Value.Trim()
