@@ -1,3 +1,165 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-top: #fef5ec;
+    --bg-bottom: #fcd8cd;
+    --card-bg: #fffbf5;
+    --card-hover: #ffffff;
+    --text-main: #5e4c46;
+    --text-sub: #9e8b84;
+    --accent: #ed9b9b;
+    --accent-bg: #fdf0ee;
+    --pill-bg: #ecdcd3;
+    --stone-1: #e2cec4;
+    --stone-2: #f2c7b8;
+    --stone-3: #fff6ef;
+
+    --radius-card: 24px;
+    --radius-pill: 100px;
+
+    --shadow-ambient: 0 16px 40px rgba(94, 76, 70, 0.06);
+    --shadow-contact: 0 4px 12px rgba(94, 76, 70, 0.04);
+    --shadow-clay-inset: inset -4px -6px 12px rgba(94, 76, 70, 0.05),
+      inset 4px 6px 12px rgba(255, 255, 255, 0.9);
+    --shadow-card-active: 0 4px 16px rgba(237, 155, 155, 0.15);
+  }
+
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    font-family: 'Quicksand', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: linear-gradient(145deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
+    color: var(--text-main);
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow: hidden;
+  }
+
+  /* Hide scrollbar */
+  .hide-scrollbar {
+    scrollbar-width: none;
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes pulse-sparkle {
+  0% {
+    opacity: 0.4;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ── Analyzing screen ────────────────────────────────────────────────────── */
+@keyframes analyzing-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 22px 64px rgba(94, 76, 70, 0.12);
+  }
+  50% {
+    transform: scale(1.035);
+    box-shadow: 0 28px 78px rgba(94, 76, 70, 0.16);
+  }
+}
+
+@keyframes analyzing-ring {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.12;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.05;
+  }
+}
+
+@keyframes analyzing-dot {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 0.5;
+  }
+}
+
+@keyframes analyzing-icon-fade {
+  0% {
+    transform: translateY(4px) scale(0.92);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes check-circle-fill {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
