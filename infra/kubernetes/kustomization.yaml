@@ -10,6 +10,6 @@ resources:
   - admin-backend
   - user-frontend
   - user-backend
-#  - gateway
+  - gateway
   - flux-image-automation
   - migration-job.yaml
