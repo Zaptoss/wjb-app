@@ -6,3 +6,10 @@ namespace: wjb
 resources:
   - namespace.yaml
   - postgresql
+  - admin-frontend
+  - admin-backend
+  - user-frontend
+  - user-backend
+#  - gateway
+  - flux-image-automation
+  - migration-job.yaml

@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-user
+spec:
+  type: ClusterIP
+  selector:
+    app: web-user
+  ports:
+    - name: http
+      port: 80
+      targetPort: http

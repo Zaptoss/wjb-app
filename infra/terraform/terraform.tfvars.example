@@ -1,0 +1,13 @@
+project_id = <project_id>
+region     = "europe-central2"
+
+project_codename = <project_codename>
+gar_repo = <gar_repo>
+github_owner = <github_owner>
+github_repo = <github_repo>
+
+kubernetes_config_path = "~/.kube/configg"
+kubernetes_config_context = <config_context>
+kubernetes_namespace = "default"
+
+cloudflare_api_token = <api_token>

@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-admin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web-admin
+  template:
+    metadata:
+      labels:
+        app: web-admin
+    spec:
+      imagePullSecrets:
+        - name: gar-pull
+      containers:
+        - name: web-admin
+          image: europe-central2-docker.pkg.dev/int20h-2026/wjb/web-admin:v0.1.0 # {"$imagepolicy": "wjb:admin-frontend"}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 80
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi

@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-user
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web-user
+  template:
+    metadata:
+      labels:
+        app: web-user
+    spec:
+      imagePullSecrets:
+        - name: gar-pull
+      containers:
+        - name: web-user
+          image: europe-central2-docker.pkg.dev/int20h-2026/wjb/web-user:v0.1.0 # {"$imagepolicy": "wjb:user-frontend"}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 80
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
