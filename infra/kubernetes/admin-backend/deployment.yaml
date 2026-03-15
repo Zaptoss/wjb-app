@@ -34,6 +34,10 @@ spec:
                 secretKeyRef:
                   name: wjb-api-secret
                   key: JWT_SECRET
+            - name: DefaultAdmin__Email
+              value: "admin@example.com"
+            - name: DefaultAdmin__PasswordHash
+              value: "$2a$11$2mUE6XkdfUarfAcxvLygseQk2meWKoJ8/lm4ONzmjUSfdCE3LcuLC"
           readinessProbe:
             httpGet:
               path: /health
