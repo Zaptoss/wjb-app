@@ -16,7 +16,7 @@ spec:
         - name: gar-pull
       containers:
         - name: web-admin
-          image: europe-central2-docker.pkg.dev/int20h-2026/wjb/web-admin:v0.1.0 # {"$imagepolicy": "wjb:admin-frontend"}
+          image: europe-central2-docker.pkg.dev/int20h-2026/wjb/web-admin:v0.2.0 # {"$imagepolicy": "wjb:admin-frontend"}
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
