@@ -11,13 +11,13 @@ namespace WellnessBuilder.User.Api.Controllers;
 public class SessionsController(ISessionService sessionService) : ControllerBase
 {
     /// <summary>
-    /// Створює нову сесію і повертає перший вузол графа
+    /// Creates a new session and returns the first graph node
     /// </summary>
-    /// <returns>ID сесії та перший вузол для відображення</returns>
-    /// <response code="201">Сесію створено успішно</response>
-    /// <response code="500">Граф не має стартового вузла</response>
+    /// <returns>Session ID and the first node to display</returns>
+    /// <response code="201">Session created successfully</response>
+    /// <response code="500">Graph has no starting node</response>
     [HttpPost]
-    [SwaggerOperation(Summary = "Створити сесію", Description = "Ініціює нову сесію користувача і повертає перше питання")]
+    [SwaggerOperation(Summary = "Create session", Description = "Initiates a new user session and returns the first question")]
     [ProducesResponseType(typeof(CreateSessionResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> CreateSession()
@@ -27,16 +27,16 @@ public class SessionsController(ISessionService sessionService) : ControllerBase
     }
 
     /// <summary>
-    /// Відправляє відповідь на поточний вузол і отримує наступний
+    /// Submits an answer to the current node and returns the next one
     /// </summary>
-    /// <param name="sessionId">ID сесії</param>
-    /// <param name="request">ID вузла і значення відповіді</param>
-    /// <returns>Наступний вузол або фінальний офер якщо граф завершився</returns>
-    /// <response code="200">Наступний крок або завершення з офером</response>
-    /// <response code="404">Сесія або вузол не знайдені</response>
-    /// <response code="409">Сесія вже завершена</response>
+    /// <param name="sessionId">Session ID</param>
+    /// <param name="request">Node ID and answer value</param>
+    /// <returns>Next node or final offer if the graph is completed</returns>
+    /// <response code="200">Next step or completion with personalized offer</response>
+    /// <response code="404">Session or node not found</response>
+    /// <response code="409">Session is already completed</response>
     [HttpPost("{sessionId:guid}/answers")]
-    [SwaggerOperation(Summary = "Відповісти на питання", Description = "Зберігає відповідь і повертає наступний вузол. Якщо граф завершився — повертає персоналізований офер")]
+    [SwaggerOperation(Summary = "Submit answer", Description = "Saves the answer and returns the next node. If the graph is completed — returns a personalized offer")]
     [ProducesResponseType(typeof(SessionStepResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
