@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: cloudflare-tunnel
+  name: cloudflared-deployment
 spec:
   replicas: 1
   selector:
@@ -12,68 +12,6 @@ spec:
       labels:
         pod: cloudflared
     spec:
-      containers:
-      - args:
-        - tunnel
-        - --no-autoupdate
-        - --metrics
-        - 0.0.0.0:8081
-        - run
-        - --token
-        - $(token)
-        env:
-        - name: TZ
-          value: UTC
-        envFrom:
-        - secretRef:
-            name: cloudflare-tunnel
-        image: cloudflare/cloudflared:latest
-        imagePullPolicy: Always
-        livenessProbe:
-          failureThreshold: 3
-          httpGet:
-            path: /ready
-            port: 8081
-            scheme: HTTP
-          initialDelaySeconds: 10
-          periodSeconds: 10
-          successThreshold: 1
-          timeoutSeconds: 1
-        name: tunnel
-        ports:
-        - containerPort: 8081
-          name: http-metrics
-          protocol: TCP
-        resources: {}
-        terminationMessagePath: /dev/termination-log
-        terminationMessagePolicy: File
-      dnsPolicy: ClusterFirst
-      restartPolicy: Always
-      schedulerName: default-scheduler
-      securityContext: {}
-      terminationGracePeriodSeconds: 30
-
-
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: cloudflared-deployment
-  namespace: default
-spec:
-  replicas: 2
-  selector:
-    matchLabels:
-      pod: cloudflared
-  template:
-    metadata:
-      labels:
-        pod: cloudflared
-    spec:
-      securityContext:
-        sysctls:
-          # Allows ICMP traffic (ping, traceroute) to resources behind cloudflared.
-          - name: net.ipv4.ping_group_range
-            value: "65532 65532"
       containers:
         - image: cloudflare/cloudflared:latest
           name: cloudflared

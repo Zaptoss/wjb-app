@@ -7,4 +7,4 @@ resources:
   - gateway.yaml
   - admin-httproute.yaml
   - user-httproute.yaml
-  # - cloudflare-tunnel.yaml
+  - cloudflare-tunnel.yaml
