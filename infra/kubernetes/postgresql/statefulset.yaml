@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: postgres
-          image: postgis/postgis:17-3.5
+          image: postgres:17
           ports:
             - containerPort: 5432
               name: pg
