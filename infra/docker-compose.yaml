@@ -72,7 +72,7 @@ services:
     environment:
       ConnectionStrings__LocalhostConnection: "Host=wjb-postgres;Port=5432;Database=wjb;Username=wjb;Password=wjb"
       Jwt__Secret: "jwt-secret-admin-token-wellness-builder"
-      DefaultAdmin__Email: "example@admin.com"
+      DefaultAdmin__Email: "admin@example.com"
       DefaultAdmin__PasswordHash: "$2a$11$2mUE6XkdfUarfAcxvLygseQk2meWKoJ8/lm4ONzmjUSfdCE3LcuLC"
     depends_on:
       postgres:
