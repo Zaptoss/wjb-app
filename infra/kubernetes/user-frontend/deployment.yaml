@@ -16,7 +16,7 @@ spec:
         - name: gar-pull
       containers:
         - name: web-user
-          image: europe-central2-docker.pkg.dev/int20h-2026/wjb/web-user:v0.0.0 # {"$imagepolicy": "wjb:user-frontend"}
+          image: europe-central2-docker.pkg.dev/int20h-2026/wjb/web-user:v0.1.0 # {"$imagepolicy": "wjb:user-frontend"}
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
