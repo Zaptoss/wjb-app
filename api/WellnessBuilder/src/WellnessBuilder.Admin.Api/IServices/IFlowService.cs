@@ -1,4 +1,4 @@
-﻿using WellnessBuilder.Admin.Api.Contracts.Flows;
+using WellnessBuilder.Admin.Api.Contracts.Flows;
 using WellnessBuilder.Admin.Api.Requests;
 using WellnessBuilder.Shared.Contracts.Graph;
 
@@ -6,7 +6,7 @@ namespace WellnessBuilder.Admin.Api.IServices;
 
 public interface IFlowService
 {
-    Task<List<FlowDto>> GetAllAsync();
+    Task<PagedResponse<FlowDto>> GetAllAsync(PagedRequest request);
     Task<FlowDto> GetByIdAsync(Guid id);
     Task<FlowDto> CreateAsync(CreateFlowRequest request);
     Task<FlowDto> UpdateAsync(Guid id, UpdateFlowRequest request);
