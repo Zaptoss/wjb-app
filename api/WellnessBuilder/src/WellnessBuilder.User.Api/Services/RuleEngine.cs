@@ -16,7 +16,7 @@ public class RuleEngine(AppDbContext db) : IRuleEngine
             .ThenInclude(g => g.Conditions)
             .Include(e => e.ToNode)
             .ThenInclude(n => n.Options)
-            .Where(e => e.FromNodeId == currentNodeId)
+            .Where(e => e.FromNodeId == currentNodeId && e.Flow.IsActive)
             .OrderBy(e => e.Priority)
             .ToListAsync();
 

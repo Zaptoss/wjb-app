@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using WellnessBuilder.Admin.Api.IServices;
 using WellnessBuilder.Admin.Api.Requests;
 using WellnessBuilder.Admin.Api.Services;
 using WellnessBuilder.Shared.Contracts.Graph;
@@ -17,12 +18,12 @@ public class NodesController(INodeService nodeService) : ControllerBase
     /// Returns all graph nodes
     /// </summary>
     [HttpGet]
-    [SwaggerOperation(Summary = "Get all nodes")]
+    [SwaggerOperation(Summary = "Get all nodes by flow")]
     [ProducesResponseType(typeof(List<NodeDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll([FromQuery] Guid flowId)
     {
-        var nodes = await nodeService.GetAllAsync();
+        var nodes = await nodeService.GetAllAsync(flowId);
         return Ok(nodes);
     }
 

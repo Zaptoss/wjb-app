@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using WellnessBuilder.Admin.Api.IServices;
 using WellnessBuilder.Admin.Api.Requests;
 using WellnessBuilder.Admin.Api.Services;
 using WellnessBuilder.Shared.Contracts.Offers;
@@ -17,12 +18,12 @@ public class OffersController(IOfferService offerService) : ControllerBase
     /// Returns all offers with their condition groups
     /// </summary>
     [HttpGet]
-    [SwaggerOperation(Summary = "Get all offers")]
+    [SwaggerOperation(Summary = "Get all offers by flow")]
     [ProducesResponseType(typeof(List<OfferDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll([FromQuery] Guid flowId)
     {
-        var offers = await offerService.GetAllAsync();
+        var offers = await offerService.GetAllAsync(flowId);
         return Ok(offers);
     }
 

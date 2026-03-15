@@ -11,5 +11,6 @@ public class Edge : BaseEntity
     public required Guid FlowId { get; set; }
     public Node? FromNode { get; set; }
     public Node? ToNode { get; set; }
+    public Flow? Flow { get; set; }
     public ICollection<EdgeConditionGroup> ConditionGroups { get; set; } = [];
 }

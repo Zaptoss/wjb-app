@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using WellnessBuilder.Admin.Api.IServices;
 using WellnessBuilder.Admin.Api.Requests;
 using WellnessBuilder.Shared.Contracts.Graph;
 using WellnessBuilder.Shared.Entities.Edges;
@@ -9,6 +10,16 @@ namespace WellnessBuilder.Admin.Api.Services;
 
 public class EdgeService(AppDbContext db) : IEdgeService
 {
+    public async Task<List<EdgeDto>> GetAllAsync(Guid flowId)
+    {
+        return await db.Edges
+            .Include(e => e.ConditionGroups)
+            .ThenInclude(g => g.Conditions)
+            .Where(e => e.FlowId == flowId)
+            .Select(e => MapToDto(e))
+            .ToListAsync();
+    }
+    
     public async Task<EdgeDto> CreateAsync(CreateEdgeRequest request)
     {
         var fromExists = await db.Nodes.AnyAsync(n => n.Id == request.FromNodeId);

@@ -21,7 +21,7 @@ public class SessionService(
     {
         var firstNode = await db.Nodes
             .Include(n => n.Options)
-            .Where(n => !db.Edges.Any(e => e.ToNodeId == n.Id))
+            .Where(n => n.Flow.IsActive && !db.Edges.Any(e=> e.ToNodeId == n.Id && e.FlowId == n.FlowId))            
             .FirstOrDefaultAsync();
 
         if (firstNode is null)
