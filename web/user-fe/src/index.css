@@ -97,11 +97,11 @@
   0%,
   100% {
     transform: scale(1);
-    box-shadow: 0 8px 32px rgba(237, 155, 155, 0.35);
+    box-shadow: 0 22px 64px rgba(94, 76, 70, 0.12);
   }
   50% {
-    transform: scale(1.06);
-    box-shadow: 0 12px 48px rgba(237, 155, 155, 0.5);
+    transform: scale(1.035);
+    box-shadow: 0 28px 78px rgba(94, 76, 70, 0.16);
   }
 }
 
@@ -109,11 +109,11 @@
   0%,
   100% {
     transform: scale(1);
-    opacity: 0.1;
+    opacity: 0.12;
   }
   50% {
-    transform: scale(1.15);
-    opacity: 0.03;
+    transform: scale(1.08);
+    opacity: 0.05;
   }
 }
 
@@ -129,13 +129,13 @@
   }
 }
 
-@keyframes analyzing-emoji-swap {
+@keyframes analyzing-icon-fade {
   0% {
-    transform: scale(0.5) rotate(-10deg);
+    transform: translateY(4px) scale(0.92);
     opacity: 0;
   }
   100% {
-    transform: scale(1) rotate(0deg);
+    transform: translateY(0) scale(1);
     opacity: 1;
   }
 }
