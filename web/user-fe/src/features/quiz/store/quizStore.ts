@@ -1,10 +1,13 @@
 import { create } from 'zustand';
-import type {
-  AnswerValue,
-  HistoryEntry,
-  OfferData,
-  SessionNode,
-} from '../types';
+import type { AnswerValue, HistoryEntry, OfferData, SessionNode } from '../types';
+
+function getDerivedProgress(currentIndex: number, historyLength: number) {
+  if (historyLength <= 1 || currentIndex <= 0) {
+    return 0;
+  }
+
+  return currentIndex / historyLength;
+}
 
 interface QuizState {
   sessionId: string | null;
@@ -83,7 +86,7 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
       currentIndex: history.length - 1,
       isOffer: false,
       offers: [],
-      progress: progress ?? state.progress,
+      progress: progress ?? getDerivedProgress(history.length - 1, history.length),
       error: null,
       direction: 'forward',
     });
@@ -116,7 +119,7 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
           currentNode: lastEntry.node,
           currentIndex: lastIdx,
           direction: 'back',
-          progress: lastIdx / Math.max(state.history.length, 1),
+          progress: getDerivedProgress(lastIdx, state.history.length),
         });
       }
       return;
@@ -130,7 +133,7 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
           currentIndex: newIndex,
           currentNode: entry.node,
           direction: 'back',
-          progress: newIndex / Math.max(state.history.length, 1),
+          progress: getDerivedProgress(newIndex, state.history.length),
         });
       }
     }

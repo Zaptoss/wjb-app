@@ -38,8 +38,8 @@ services:
       - "8001:80"
     environment:
       # Override with your local API server address
-      APP_API_URL: "http://localhost:80"
-      APP_WS_URL:  "ws://localhost:80"
+      APP_API_URL: ""
+      APP_WS_URL:  ""
       APP_ENV:     "development"
       APP_VERSION: "local"
       APP_SENTRY_DSN: ""

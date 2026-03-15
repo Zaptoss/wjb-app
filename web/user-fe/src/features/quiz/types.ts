@@ -62,22 +62,72 @@ export interface HistoryEntry {
   answer: AnswerValue | null; // null for info pages
 }
 
-// ── API types ───────────────────────────────────────────────────────────────
+// ── UI session API types ────────────────────────────────────────────────────
 
 export interface SessionStepResponse {
-  isOffer: boolean;
+  completed: boolean;
   node?: SessionNode;
-  offer?: OfferData;
   offers?: OfferData[];
-  progress?: number;
 }
 
 export interface CreateSessionResponse {
   sessionId: string;
-  step: SessionStepResponse;
+  node: SessionNode;
 }
 
 export interface AnswerRequest {
   nodeId: string;
-  answer: AnswerValue;
+  value: string;
+}
+
+export interface SubmitAnswerInput extends AnswerRequest {
+  historyAnswer: AnswerValue | null;
+}
+
+// ── Raw API DTO types ───────────────────────────────────────────────────────
+
+export interface NodeOptionDto {
+  id?: string;
+  label?: string | null;
+  value?: string | null;
+  order?: number;
+}
+
+export interface NodeDto {
+  id?: string;
+  type?: string | null;
+  title?: string | null;
+  body?: string | null;
+  inputType?: string | null;
+  attributeKey?: string | null;
+  imageUrl?: string | null;
+  options?: NodeOptionDto[] | null;
+}
+
+export interface OfferDto {
+  id?: string;
+  name?: string | null;
+  description?: string | null;
+  digitalPlanDetails?: string | null;
+  wellnessKitDetails?: string | null;
+  why?: string | null;
+}
+
+export interface ApiCreateSessionResponse {
+  sessionId?: string;
+  node?: NodeDto | null;
+}
+
+export interface ApiSessionStepResponse {
+  completed?: boolean;
+  node?: NodeDto | null;
+  offers?: OfferDto[] | null;
+}
+
+export interface ProblemDetails {
+  type?: string | null;
+  title?: string | null;
+  status?: number | null;
+  detail?: string | null;
+  instance?: string | null;
 }
