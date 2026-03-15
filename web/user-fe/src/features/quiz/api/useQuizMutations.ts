@@ -33,8 +33,10 @@ export function useSubmitAnswer() {
       store.setError(null);
     },
     onSuccess: (data, variables) => {
-      if (data.isOffer && data.offer) {
-        store.pushOffer(data.offer);
+      const offers = data.offers ?? (data.offer ? [data.offer] : []);
+
+      if (data.isOffer && offers.length > 0) {
+        store.pushOffers(offers);
       } else if (data.node) {
         // Determine the answer that was just submitted
         const answer = variables.answer;

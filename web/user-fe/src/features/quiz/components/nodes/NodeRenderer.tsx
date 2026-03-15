@@ -1,19 +1,22 @@
-import { useCallback } from 'react';
+import { useCallback, useState, useEffect, useRef } from 'react';
 import type { AnswerValue } from '../../types';
 import SingleChoiceNode from './SingleChoiceNode';
 import MultiChoiceNode from './MultiChoiceNode';
 import InputNode from './InputNode';
 import InfoPageNode from './InfoPageNode';
 import OfferPage from './OfferPage';
+import OfferEmailPage from './OfferEmailPage';
+import AnalyzingScreen from './AnalyzingScreen';
 import QuizLayout from '../layout/QuizLayout';
 import { useQuizStore } from '../../store/quizStore';
 import { useSubmitAnswer } from '../../api/useQuizMutations';
+import type { OfferData } from '../../types';
 
 export default function NodeRenderer() {
   const {
     currentNode,
     isOffer,
-    offer,
+    offers,
     progress,
     currentIndex,
     history,
@@ -29,7 +32,42 @@ export default function NodeRenderer() {
 
   const submitAnswerMutation = useSubmitAnswer();
 
-  const canGoBack = currentIndex > 0 || isOffer;
+  // Analyzing screen state: show before the offer reveal
+  const [showAnalyzing, setShowAnalyzing] = useState(false);
+  const [analyzeComplete, setAnalyzeComplete] = useState(false);
+  const [selectedOffer, setSelectedOffer] = useState<OfferData | null>(null);
+  const prevIsOffer = useRef(isOffer);
+
+  useEffect(() => {
+    // When isOffer flips from false to true, trigger the analyzing screen
+    if (isOffer && !prevIsOffer.current) {
+      setShowAnalyzing(true);
+      setAnalyzeComplete(false);
+      setSelectedOffer(null);
+    }
+    // When going back from offer, reset
+    if (!isOffer && prevIsOffer.current) {
+      setShowAnalyzing(false);
+      setAnalyzeComplete(false);
+      setSelectedOffer(null);
+    }
+    prevIsOffer.current = isOffer;
+  }, [isOffer]);
+
+  const handleAnalyzeComplete = useCallback(() => {
+    setShowAnalyzing(false);
+    setAnalyzeComplete(true);
+  }, []);
+
+  const handleOfferBack = useCallback(() => {
+    if (selectedOffer) {
+      setSelectedOffer(null);
+      return;
+    }
+    goBack();
+  }, [goBack, selectedOffer]);
+
+  const canGoBack = currentIndex > 0 || (isOffer && (analyzeComplete || Boolean(selectedOffer)));
   const previousAnswer = getCurrentAnswer();
 
   const handleSubmit = useCallback(
@@ -99,12 +137,26 @@ export default function NodeRenderer() {
       ? 'animate-[slide-in-right_0.3s_ease-out]'
       : 'animate-[slide-in-left_0.3s_ease-out]';
 
-  // Offer page
-  if (isOffer && offer) {
+  // Analyzing → Offer sequence
+  if (isOffer && offers.length > 0) {
+    if (showAnalyzing) {
+      return <AnalyzingScreen onComplete={handleAnalyzeComplete} />;
+    }
+
     return (
-      <QuizLayout progress={1} canGoBack={canGoBack} onBack={goBack}>
-        <div key="offer" className={animClass}>
-          <OfferPage offer={offer} />
+      <QuizLayout progress={1} canGoBack={canGoBack} onBack={handleOfferBack}>
+        <div
+          key={selectedOffer ? `offer-email-${selectedOffer.id}` : 'offer-list'}
+          className={animClass}
+        >
+          {selectedOffer ? (
+            <OfferEmailPage offer={selectedOffer} />
+          ) : (
+            <OfferPage
+              offers={offers}
+              onSelectOffer={setSelectedOffer}
+            />
+          )}
         </div>
       </QuizLayout>
     );

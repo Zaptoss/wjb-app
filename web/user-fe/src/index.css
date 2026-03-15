@@ -91,3 +91,75 @@
     transform: translateX(0);
   }
 }
+
+/* ── Analyzing screen ────────────────────────────────────────────────────── */
+@keyframes analyzing-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 8px 32px rgba(237, 155, 155, 0.35);
+  }
+  50% {
+    transform: scale(1.06);
+    box-shadow: 0 12px 48px rgba(237, 155, 155, 0.5);
+  }
+}
+
+@keyframes analyzing-ring {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.1;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.03;
+  }
+}
+
+@keyframes analyzing-dot {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 0.5;
+  }
+}
+
+@keyframes analyzing-emoji-swap {
+  0% {
+    transform: scale(0.5) rotate(-10deg);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes check-circle-fill {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

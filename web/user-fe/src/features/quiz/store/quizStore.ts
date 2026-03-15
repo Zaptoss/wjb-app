@@ -12,7 +12,7 @@ interface QuizState {
   history: HistoryEntry[];
   currentIndex: number;
   isOffer: boolean;
-  offer: OfferData | null;
+  offers: OfferData[];
   progress: number;
   isSubmitting: boolean;
   error: string | null;
@@ -22,7 +22,7 @@ interface QuizState {
 interface QuizActions {
   initSession: (sessionId: string, firstNode: SessionNode, progress?: number) => void;
   pushNode: (node: SessionNode, answer: AnswerValue | null, progress?: number) => void;
-  pushOffer: (offer: OfferData) => void;
+  pushOffers: (offers: OfferData[]) => void;
   goBack: () => void;
   getCurrentAnswer: () => AnswerValue | null;
   isAtEdge: () => boolean;
@@ -41,7 +41,7 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
   history: [],
   currentIndex: -1,
   isOffer: false,
-  offer: null,
+  offers: [],
   progress: 0,
   isSubmitting: false,
   error: null,
@@ -56,7 +56,7 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
       history: [entry],
       currentIndex: 0,
       isOffer: false,
-      offer: null,
+      offers: [],
       progress: progress ?? 0,
       error: null,
       direction: 'forward',
@@ -82,18 +82,18 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
       currentNode: node,
       currentIndex: history.length - 1,
       isOffer: false,
-      offer: null,
+      offers: [],
       progress: progress ?? state.progress,
       error: null,
       direction: 'forward',
     });
   },
 
-  pushOffer: (offer) => {
+  pushOffers: (offers) => {
     const state = get();
     set({
       isOffer: true,
-      offer,
+      offers,
       progress: 1,
       currentNode: null,
       error: null,
@@ -112,7 +112,7 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
       if (lastIdx >= 0 && lastEntry) {
         set({
           isOffer: false,
-          offer: null,
+          offers: [],
           currentNode: lastEntry.node,
           currentIndex: lastIdx,
           direction: 'back',
@@ -154,7 +154,7 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
     const state = get();
     // Remove everything after currentIndex
     const history = state.history.slice(0, state.currentIndex + 1);
-    set({ history, isOffer: false, offer: null });
+    set({ history, isOffer: false, offers: [] });
   },
 
   setSubmitting: (v) => set({ isSubmitting: v }),
@@ -167,7 +167,7 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
       history: [],
       currentIndex: -1,
       isOffer: false,
-      offer: null,
+      offers: [],
       progress: 0,
       isSubmitting: false,
       error: null,

@@ -68,6 +68,7 @@ export interface SessionStepResponse {
   isOffer: boolean;
   node?: SessionNode;
   offer?: OfferData;
+  offers?: OfferData[];
   progress?: number;
 }
 
