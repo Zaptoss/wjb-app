@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WellnessBuilder.Admin.Api.IServices;
 using WellnessBuilder.Admin.Api.Requests;
+using WellnessBuilder.Shared.Contracts.Common;
 using WellnessBuilder.Shared.Contracts.Graph;
 using WellnessBuilder.Shared.Entities;
 using WellnessBuilder.Shared.Persistence;
@@ -9,11 +10,26 @@ namespace WellnessBuilder.Admin.Api.Services;
 
 public class FlowService(AppDbContext db) : IFlowService
 {
-    public async Task<List<FlowDto>> GetAllAsync()
+    public async Task<PagedResponse<FlowDto>> GetAllAsync(PagedRequest request)
     {
-        return await db.Flows
+        var query = db.Flows.AsQueryable();
+
+        var totalCount = await query.CountAsync();
+
+        var items = await query
+            .OrderBy(f => f.Title)
+            .Skip((request.Page - 1) * request.PageSize)
+            .Take(request.PageSize)
             .Select(f => MapToDto(f))
             .ToListAsync();
+
+        return new PagedResponse<FlowDto>
+        {
+            Items = items,
+            Page = request.Page,
+            PageSize = request.PageSize,
+            TotalCount = totalCount
+        };
     }
 
     public async Task<FlowDto> GetByIdAsync(Guid id)

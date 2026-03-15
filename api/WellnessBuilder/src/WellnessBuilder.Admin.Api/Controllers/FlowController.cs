@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using WellnessBuilder.Admin.Api.IServices;
 using WellnessBuilder.Admin.Api.Requests;
+using WellnessBuilder.Shared.Contracts.Common;
 using WellnessBuilder.Shared.Contracts.Graph;
 
 namespace WellnessBuilder.Admin.Api.Controllers;
@@ -14,15 +15,15 @@ namespace WellnessBuilder.Admin.Api.Controllers;
 public class FlowsController(IFlowService flowService) : ControllerBase
 {
     /// <summary>
-    /// Returns all flows
+    /// Returns paginated list of flows
     /// </summary>
     [HttpGet]
-    [SwaggerOperation(Summary = "Get all flows")]
-    [ProducesResponseType(typeof(List<FlowDto>), StatusCodes.Status200OK)]
+    [SwaggerOperation(Summary = "Get all flows", Description = "Returns a paginated list of flows. Default page size is 10, maximum is 50")]
+    [ProducesResponseType(typeof(PagedResponse<FlowDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll([FromQuery] PagedRequest request)
     {
-        var flows = await flowService.GetAllAsync();
+        var flows = await flowService.GetAllAsync(request);
         return Ok(flows);
     }
 
