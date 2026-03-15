@@ -34,6 +34,12 @@ public class Program
             app.UseSwagger();
             app.UseSwaggerUI();
         }
+        
+        app.MapGet("/health", () => Results.Ok(new
+        {
+            status = "API running"
+        }));
+
 
         app.UseExceptionHandler();
 
