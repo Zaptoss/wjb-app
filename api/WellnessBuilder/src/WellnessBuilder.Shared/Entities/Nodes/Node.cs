@@ -13,6 +13,7 @@ public class Node : BaseEntity
     public InputType? InputType { get; set; }
     public string? AttributeKey { get; set; }
 
+    public Flow? Flow { get; set; }
     public ICollection<NodeOption> Options { get; set; } = [];
     public ICollection<Edge> OutgoingEdges { get; set; } = [];
     public ICollection<Edge> IncomingEdges { get; set; } = [];

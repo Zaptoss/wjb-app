@@ -4,6 +4,7 @@ using System.Text;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using WellnessBuilder.Admin.Api.IServices;
 using WellnessBuilder.Shared.Persistence;
 
 namespace WellnessBuilder.Admin.Api.Services;

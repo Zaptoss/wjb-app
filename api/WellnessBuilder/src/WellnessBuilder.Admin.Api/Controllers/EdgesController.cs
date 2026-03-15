@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using WellnessBuilder.Admin.Api.IServices;
 using WellnessBuilder.Admin.Api.Requests;
 using WellnessBuilder.Admin.Api.Services;
 using WellnessBuilder.Shared.Contracts.Graph;
@@ -13,6 +14,16 @@ namespace WellnessBuilder.Admin.Api.Controllers;
 [Produces("application/json")]
 public class EdgesController(IEdgeService edgeService) : ControllerBase
 {
+    [HttpGet]
+    [SwaggerOperation(Summary = "Get all edges by flow")]
+    [ProducesResponseType(typeof(List<EdgeDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> GetAll([FromQuery] Guid flowId)
+    {
+        var edges = await edgeService.GetAllAsync(flowId);
+        return Ok(edges);
+    }
+    
     /// <summary>
     /// Creates a new edge between two nodes with optional transition conditions
     /// </summary>

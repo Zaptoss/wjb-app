@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using WellnessBuilder.Admin.Api.IServices;
 using WellnessBuilder.Admin.Api.Requests;
 using WellnessBuilder.Shared.Contracts.Offers;
 using WellnessBuilder.Shared.Entities.Offers;
@@ -9,11 +10,12 @@ namespace WellnessBuilder.Admin.Api.Services;
 
 public class OfferService(AppDbContext db) : IOfferService
 {
-    public async Task<List<OfferDto>> GetAllAsync()
+    public async Task<List<OfferDto>> GetAllAsync(Guid flowId)
     {
         return await db.Offers
-            .Include(r => r.ConditionGroups)
+            .Include(o => o.ConditionGroups)
             .ThenInclude(g => g.Conditions)
+            .Where(o => o.FlowId == flowId)
             .Select(o => MapToDto(o))
             .ToListAsync();
     }

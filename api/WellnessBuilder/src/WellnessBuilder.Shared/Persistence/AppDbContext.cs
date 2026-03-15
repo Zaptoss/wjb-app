@@ -10,6 +10,7 @@ namespace WellnessBuilder.Shared.Persistence;
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
     // Graph
+    public DbSet<Flow> Flows { get; set; }
     public DbSet<Node> Nodes { get; set; }
     public DbSet<NodeOption> NodeOptions { get; set; }
     public DbSet<NodeOptionConditionGroup> NodeOptionConditionGroups { get; set; }

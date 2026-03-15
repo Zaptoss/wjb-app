@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using WellnessBuilder.Admin.Api.IServices;
 using WellnessBuilder.Admin.Api.Services;
 
 namespace WellnessBuilder.Admin.Api.Controllers;

@@ -13,6 +13,7 @@ public class OfferResolver(AppDbContext db) : IOfferResolver
         var offers = await db.Offers
             .Include(o => o.ConditionGroups)
             .ThenInclude(g => g.Conditions)
+            .Where(o => o.Flow.IsActive)
             .ToListAsync();
 
         return offers

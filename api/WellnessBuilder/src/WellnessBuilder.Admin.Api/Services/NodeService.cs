@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using WellnessBuilder.Admin.Api.IServices;
 using WellnessBuilder.Admin.Api.Requests;
 using WellnessBuilder.Shared.Contracts.Graph;
 using WellnessBuilder.Shared.Entities.Nodes;
@@ -9,10 +10,11 @@ namespace WellnessBuilder.Admin.Api.Services;
 
 public class NodeService(AppDbContext db) : INodeService
 {
-    public async Task<List<NodeDto>> GetAllAsync()
+    public async Task<List<NodeDto>> GetAllAsync(Guid flowId)
     {
         return await db.Nodes
             .Include(n => n.Options)
+            .Where(n => n.FlowId == flowId)
             .Select(n => MapToDto(n))
             .ToListAsync();
     }

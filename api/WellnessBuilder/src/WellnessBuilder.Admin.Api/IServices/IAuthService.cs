@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.Data;
 
-namespace WellnessBuilder.Admin.Api.Services;
+namespace WellnessBuilder.Admin.Api.IServices;
 
 public interface IAuthService
 {
