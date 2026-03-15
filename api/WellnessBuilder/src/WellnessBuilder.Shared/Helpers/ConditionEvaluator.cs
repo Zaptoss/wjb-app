@@ -21,12 +21,22 @@ public static class ConditionEvaluator
             ConditionOperator.In => JsonSerializer
                 .Deserialize<List<string>>(conditionValue)!
                 .Contains(contextValue),
+            ConditionOperator.Nin => !JsonSerializer
+                .Deserialize<List<string>>(conditionValue)!
+                .Contains(contextValue),
             ConditionOperator.Gt => decimal.TryParse(contextValue, out var cv) &&
                                     decimal.TryParse(conditionValue, out var condV) &&
-                                    cv >= condV,
+                                    cv > condV,
+            ConditionOperator.Gte => decimal.TryParse(contextValue, out var cvGte) &&
+                                     decimal.TryParse(conditionValue, out var condVGte) &&
+                                     cvGte >= condVGte,
             ConditionOperator.Lt => decimal.TryParse(contextValue, out var cv) &&
                                     decimal.TryParse(conditionValue, out var condV) &&
-                                    cv <= condV,
+                                    cv < condV,
+            ConditionOperator.Lte => decimal.TryParse(contextValue, out var cvLte) &&
+                                     decimal.TryParse(conditionValue, out var condVLte) &&
+                                     cvLte <= condVLte,
+            ConditionOperator.Contains => contextValue.Contains(conditionValue, StringComparison.OrdinalIgnoreCase),
             _ => false
         };
     }

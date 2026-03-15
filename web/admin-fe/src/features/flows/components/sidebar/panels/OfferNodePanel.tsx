@@ -1,13 +1,31 @@
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { useFlowStore } from '../../../store/flowStore';
 import type { OfferNodeData } from '../../../types';
-import { useStoredOffers } from '../../../../offers/storage';
+import { fetchOffers } from '../../../../offers/api/offersApi';
 
 export function OfferNodePanel({ nodeId, data }: { nodeId: string; data: OfferNodeData }) {
   const navigate = useNavigate();
   const updateNodeData = useFlowStore((s) => s.updateNodeData);
-  const offers = useStoredOffers();
+  const offersQuery = useQuery({
+    queryKey: ['offers'],
+    queryFn: fetchOffers,
+  });
+  const offers = offersQuery.data ?? [];
   const selectedOffer = offers.find((offer) => offer.id === data.offerId);
+
+  if (offersQuery.isLoading) {
+    return (
+      <div
+        className="rounded-xl p-4"
+        style={{ border: '1px solid var(--border-default)', backgroundColor: 'var(--bg-surface-secondary)' }}
+      >
+        <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+          Loading offers...
+        </p>
+      </div>
+    );
+  }
 
   if (offers.length === 0) {
     return (

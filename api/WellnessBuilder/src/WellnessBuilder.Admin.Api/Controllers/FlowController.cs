@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using WellnessBuilder.Admin.Api.Contracts.Flows;
 using WellnessBuilder.Admin.Api.IServices;
 using WellnessBuilder.Admin.Api.Requests;
 using WellnessBuilder.Shared.Contracts.Graph;
@@ -41,6 +42,20 @@ public class FlowsController(IFlowService flowService) : ControllerBase
     }
 
     /// <summary>
+    /// Returns the full editor graph for a flow
+    /// </summary>
+    [HttpGet("{id:guid}/graph")]
+    [SwaggerOperation(Summary = "Get flow graph")]
+    [ProducesResponseType(typeof(AdminFlowGraphDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetGraph(Guid id)
+    {
+        var flow = await flowService.GetGraphAsync(id);
+        return Ok(flow);
+    }
+
+    /// <summary>
     /// Creates a new flow
     /// </summary>
     [HttpPost]
@@ -64,6 +79,20 @@ public class FlowsController(IFlowService flowService) : ControllerBase
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateFlowRequest request)
     {
         var flow = await flowService.UpdateAsync(id, request);
+        return Ok(flow);
+    }
+
+    /// <summary>
+    /// Saves the full editor graph for a flow
+    /// </summary>
+    [HttpPut("{id:guid}/graph")]
+    [SwaggerOperation(Summary = "Save flow graph")]
+    [ProducesResponseType(typeof(AdminFlowGraphDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> SaveGraph(Guid id, [FromBody] SaveFlowGraphRequest request)
+    {
+        var flow = await flowService.SaveGraphAsync(id, request);
         return Ok(flow);
     }
 

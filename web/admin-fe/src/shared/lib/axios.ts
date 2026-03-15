@@ -1,5 +1,6 @@
 import axiosLib from 'axios';
 import { getConfig } from '@/config';
+import { getAccessToken, redirectToLogin } from '@/features/auth';
 
 /**
  * Singleton axios instance used by all API calls in the application.
@@ -27,7 +28,7 @@ export const axiosInstance = axiosLib.create({
 
 // ── Request interceptor: attach Bearer token ──────────────────────────────
 axiosInstance.interceptors.request.use((config) => {
-  const token = localStorage.getItem('access_token');
+  const token = getAccessToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -39,8 +40,7 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   (error: unknown) => {
     if (axiosLib.isAxiosError(error) && error.response?.status === 401) {
-      localStorage.removeItem('access_token');
-      window.location.href = '/login';
+      redirectToLogin();
     }
     return Promise.reject(error);
   },

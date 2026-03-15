@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { logout, useAuthStore } from '@/features/auth';
 import { getStoredTheme, setTheme as persistTheme, type AdminTheme } from '@/shared/theme/theme';
 
 const CONTENT_NODES = [
@@ -123,6 +124,7 @@ function NavItem({ label, icon, active, onClick }: NavItemProps) {
 export function NodePalette() {
   const navigate = useNavigate();
   const location = useLocation();
+  const user = useAuthStore((state) => state.user);
   const isFlowsPage = location.pathname === '/flows' || location.pathname === '/';
   const isOffersPage = location.pathname === '/offers';
   const isEditorPage = !isFlowsPage && !isOffersPage;
@@ -246,8 +248,10 @@ export function NodePalette() {
 
         <div style={{ height: 1, backgroundColor: 'var(--border-subtle)', margin: '12px 0' }} />
 
-        <div
-          className="flex cursor-pointer items-center gap-2.5 rounded-lg p-2 transition-colors"
+        <button
+          type="button"
+          onClick={() => logout()}
+          className="flex w-full items-center gap-2.5 rounded-lg p-2 text-left transition-colors"
           onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--bg-surface-hover)')}
           onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
         >
@@ -255,16 +259,20 @@ export function NodePalette() {
             className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-xs font-semibold"
             style={{ backgroundColor: '#F3E8FF', color: '#6B21A8' }}
           >
-            AD
+            {(user?.email?.[0] ?? 'A').toUpperCase()}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-[13px] font-semibold" style={{ color: 'var(--text-primary)' }}>Alex Designer</p>
-            <p className="text-[11px]" style={{ color: 'var(--text-tertiary)' }}>Personal Account</p>
+            <p className="truncate text-[13px] font-semibold" style={{ color: 'var(--text-primary)' }}>
+              {user?.email ?? 'Admin'}
+            </p>
+            <p className="text-[11px]" style={{ color: 'var(--text-tertiary)' }}>Sign out</p>
           </div>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="m6 9 6 6 6-6"/>
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+            <polyline points="10 17 15 12 10 7"/>
+            <line x1="15" y1="12" x2="3" y2="12"/>
           </svg>
-        </div>
+        </button>
       </div>
     </div>
   );

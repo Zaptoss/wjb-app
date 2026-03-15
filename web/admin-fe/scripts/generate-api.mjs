@@ -22,7 +22,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const specSource =
   process.env['OPENAPI_SPEC_URL'] ??
-  path.resolve(__dirname, '../../../docs/openapi.json');
+  'http://localhost:8000/swagger/v1/swagger.json';
 
 console.log(`[generate-api] Reading spec from: ${specSource}`);
 

@@ -44,6 +44,10 @@ public class NodeService(AppDbContext db) : INodeService
                 ? null
                 : Enum.Parse<InputType>(request.InputType, true),
             AttributeKey = request.AttributeKey,
+            ImageUrl = request.ImageUrl,
+            OfferId = request.OfferId,
+            PositionX = request.PositionX,
+            PositionY = request.PositionY,
             Options = request.Options.Select((o, i) => new NodeOption
             {
                 Id = Guid.NewGuid(),
@@ -75,6 +79,10 @@ public class NodeService(AppDbContext db) : INodeService
             ? null
             : Enum.Parse<InputType>(request.InputType, true);
         node.AttributeKey = request.AttributeKey;
+        node.ImageUrl = request.ImageUrl;
+        node.OfferId = request.OfferId;
+        node.PositionX = request.PositionX;
+        node.PositionY = request.PositionY;
 
         db.NodeOptions.RemoveRange(node.Options);
         node.Options = request.Options.Select(o => new NodeOption
@@ -112,10 +120,16 @@ public class NodeService(AppDbContext db) : INodeService
             Title = node.Title,
             Body = node.Body,
             InputType = node.InputType?.ToString(),
+            AttributeKey = node.AttributeKey,
+            ImageUrl = node.ImageUrl,
+            OfferId = node.OfferId,
+            PositionX = node.PositionX,
+            PositionY = node.PositionY,
             Options = node.Options
                 .OrderBy(o => o.DisplayOrder)
                 .Select(o => new NodeOptionDto
                 {
+                    Id = o.Id,
                     Label = o.Label,
                     Value = o.Value,
                     Order = o.DisplayOrder

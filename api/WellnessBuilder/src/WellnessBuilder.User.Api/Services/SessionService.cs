@@ -14,14 +14,13 @@ namespace WellnessBuilder.User.Api.Services;
 
 public class SessionService(
     AppDbContext db,
-    IRuleEngine ruleEngine,
-    IOfferResolver offerResolver) : ISessionService
+    IRuleEngine ruleEngine) : ISessionService
 {
     public async Task<CreateSessionResponse> CreateAsync()
     {
         var firstNode = await db.Nodes
             .Include(n => n.Options)
-            .Where(n => n.Flow.IsActive && !db.Edges.Any(e=> e.ToNodeId == n.Id && e.FlowId == n.FlowId))            
+            .Where(n => n.Flow.IsActive && n.NodeType != NodeType.Offer && !db.Edges.Any(e=> e.ToNodeId == n.Id && e.FlowId == n.FlowId))
             .FirstOrDefaultAsync();
 
         if (firstNode is null)
@@ -85,31 +84,55 @@ public class SessionService(
 
         if (nextNode is null)
         {
-            var offers = await offerResolver.ResolveAsync(context);
+            session.CompletedAt = DateTime.UtcNow;
+            await db.SaveChangesAsync();
+
+            return new SessionStepResponse
+            {
+                Completed = true,
+                Offers = []
+            };
+        }
+
+        if (nextNode.NodeType == NodeType.Offer)
+        {
+            if (nextNode.OfferId is null)
+                throw new InvalidOperationException($"Offer node {nextNode.Id} has no linked offer");
+
+            var offer = await db.Offers.FirstOrDefaultAsync(o => o.Id == nextNode.OfferId.Value);
+            if (offer is null)
+                throw new KeyNotFoundException($"Offer {nextNode.OfferId.Value} not found");
 
             session.CompletedAt = DateTime.UtcNow;
-            session.AssignedOffers = offers.Select(o => new SessionOffer
-            {
-                Id = Guid.NewGuid(),
-                SessionId = sessionId,
-                OfferId = o.Id,
-                AssignedAt = DateTime.UtcNow
-            }).ToList();
+            session.AssignedOffers =
+            [
+                new SessionOffer
+                {
+                    Id = Guid.NewGuid(),
+                    SessionId = sessionId,
+                    OfferId = offer.Id,
+                    AssignedAt = DateTime.UtcNow
+                }
+            ];
 
             await db.SaveChangesAsync();
 
             return new SessionStepResponse
             {
                 Completed = true,
-                Offers = offers.Select(o => new OfferDto
-                {
-                    Id = o.Id,
-                    Name = o.Name,
-                    Description = o.Description,
-                    DigitalPlanDetails = o.DigitalPlanDetails,
-                    WellnessKitDetails = o.WellnessKitDetails,
-                    Why = BuildWhy(o, context)
-                }).ToList()
+                Offers =
+                [
+                    new OfferDto
+                    {
+                        Id = offer.Id,
+                        Name = offer.Name,
+                        Description = offer.Description,
+                        DigitalPlanDetails = offer.DigitalPlanDetails,
+                        WellnessKitDetails = offer.WellnessKitDetails,
+                        Why = BuildWhy(offer, context),
+                        UpdatedAt = offer.UpdatedAt
+                    }
+                ]
             };
         }
 
@@ -122,6 +145,9 @@ public class SessionService(
 
     private static string BuildWhy(Offer offer, Dictionary<string, string> context)
     {
+        if (!string.IsNullOrWhiteSpace(offer.Why))
+            return offer.Why;
+
         var parts = new List<string>();
 
         if (context.TryGetValue("goal", out var goal))
@@ -144,10 +170,16 @@ public class SessionService(
             Title = node.Title,
             Body = node.Body,
             InputType = node.InputType?.ToString(),
+            AttributeKey = node.AttributeKey,
+            ImageUrl = node.ImageUrl,
+            OfferId = node.OfferId,
+            PositionX = node.PositionX,
+            PositionY = node.PositionY,
             Options = node.Options
                 .OrderBy(o => o.DisplayOrder)
                 .Select(o => new NodeOptionDto
                 {
+                    Id = o.Id,
                     Label = o.Label,
                     Value = o.Value,
                     Order = o.DisplayOrder

@@ -3,5 +3,6 @@
 public enum NodeType
 {
     Question,
-    Info
+    Info,
+    Offer
 }
