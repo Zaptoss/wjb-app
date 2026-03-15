@@ -6,3 +6,4 @@ resources:
   - admin-frontend-image.yaml
   - user-backend-image.yaml
   - user-frontend-image.yaml
+  - migration-image.yaml
