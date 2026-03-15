@@ -10,8 +10,8 @@ spec:
       imagePullSecrets:
         - name: gar-pull
       containers:
-        - name: migration-v0-1-0
-          image: europe-central2-docker.pkg.dev/int20h-2026/wjb/migration:v0.1.0
+        - name: migration-v0-2-0
+          image: europe-central2-docker.pkg.dev/int20h-2026/wjb/migration:v0.2.0
           env:
             - name: ASPNETCORE_URLS
               value: "http://0.0.0.0:8080"
